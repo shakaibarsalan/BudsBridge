@@ -1,6 +1,6 @@
 //! Applies settings that live outside BudsBridge: hotkey and autostart.
 
-use budsbridge_core::Settings;
+use budsbridge_core::{DeviceId, Settings};
 use tauri::{AppHandle, Emitter, Manager};
 use tauri_plugin_autostart::ManagerExt;
 
@@ -41,7 +41,22 @@ pub fn update_settings(app: &AppHandle, settings: Settings) -> Result<AppInfo, S
     let state = app.state::<AppState>();
     state.store_settings(settings.clone())?;
     state.set_warnings(apply(app, &settings));
-    tray::update(app, &state.runtime().views());
+    tray::update(app);
     let _ = app.emit(SETTINGS_CHANGED, &settings);
     Ok(state.info(app.package_info().version.to_string()))
+}
+
+/// Turns bridge mode on or off for a phone and remembers it for next start.
+pub fn set_phone_bridged(app: &AppHandle, id: DeviceId, enabled: bool) -> Result<(), String> {
+    let state = app.state::<AppState>();
+    state.bridge().set_enabled(id.clone(), enabled);
+    let mut settings = state.settings();
+    settings.bridged_phones.retain(|phone| phone != &id);
+    if enabled {
+        settings.bridged_phones.push(id);
+    }
+    let settings = settings.sanitized();
+    state.store_settings(settings.clone())?;
+    let _ = app.emit(SETTINGS_CHANGED, &settings);
+    Ok(())
 }

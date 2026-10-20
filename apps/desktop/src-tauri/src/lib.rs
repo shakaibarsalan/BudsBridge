@@ -1,5 +1,6 @@
 //! BudsBridge desktop shell: window, tray, hotkey and autostart around the
-//! platform-independent runtime in `budsbridge-core`.
+//! platform-independent runtimes in `budsbridge-core` (buds switching and
+//! bridge mode).
 
 mod commands;
 mod hotkey;
@@ -10,7 +11,8 @@ mod tray;
 
 use std::sync::Arc;
 
-use budsbridge_core::{DeviceBackend, Runtime};
+use budsbridge_core::bridge::default_retry_policy;
+use budsbridge_core::{BridgeRuntime, DeviceBackend, Runtime, SourceBackend};
 use tauri::{AppHandle, Emitter, Manager, WebviewUrl, WebviewWindowBuilder, WindowEvent};
 
 use crate::state::AppState;
@@ -19,6 +21,7 @@ pub const MAIN_WINDOW: &str = "main";
 /// Passed by autostart so BudsBridge starts in the tray.
 pub const MINIMIZED_ARG: &str = "--minimized";
 pub const DEVICES_CHANGED: &str = "devices-changed";
+pub const SOURCES_CHANGED: &str = "sources-changed";
 /// Set to `1` to use simulated devices, e.g. for demos and screenshots.
 pub const DEMO_ENV: &str = "BUDSBRIDGE_DEMO";
 
@@ -44,6 +47,8 @@ pub fn run() {
             commands::disconnect_device,
             commands::get_settings,
             commands::update_settings,
+            commands::list_sources,
+            commands::set_source_enabled,
         ])
         .setup(|app| {
             setup(app.handle())?;
@@ -69,7 +74,7 @@ pub fn run() {
 fn setup(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     let settings_path = app.path().app_config_dir()?.join("settings.json");
     let settings = state::load_settings(&settings_path);
-    let backend = create_backend();
+    let (backend, sources) = create_backends();
     log::info!(
         "BudsBridge {} starting with the {} backend",
         app.package_info().version,
@@ -84,13 +89,27 @@ fn setup(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
             if let Err(err) = events.emit(DEVICES_CHANGED, views) {
                 log::warn!("could not notify the UI: {err}");
             }
-            tray::update(&events, views);
+            tray::update(&events);
+        }),
+    );
+
+    let events = app.clone();
+    let bridge = BridgeRuntime::spawn(
+        sources,
+        settings.bridged_phones.clone(),
+        default_retry_policy(),
+        Box::new(move |views| {
+            if let Err(err) = events.emit(SOURCES_CHANGED, views) {
+                log::warn!("could not notify the UI: {err}");
+            }
+            tray::update(&events);
         }),
     );
 
     let mica = supports_mica();
     app.manage(AppState::new(
         runtime,
+        bridge,
         settings.clone(),
         settings_path,
         mica,
@@ -102,16 +121,24 @@ fn setup(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn create_backend() -> Arc<dyn DeviceBackend> {
+type Backends = (Arc<dyn DeviceBackend>, Arc<dyn SourceBackend>);
+
+fn create_backends() -> Backends {
     let demo = std::env::var(DEMO_ENV).is_ok_and(|value| value == "1");
     #[cfg(windows)]
     if !demo {
-        return Arc::new(budsbridge_win::WindowsBackend::new());
+        return (
+            Arc::new(budsbridge_win::WindowsBackend::new()),
+            Arc::new(budsbridge_win::PhoneAudioBackend::new()),
+        );
     }
     if !demo {
         log::warn!("no Bluetooth backend for this platform; using demo devices");
     }
-    Arc::new(budsbridge_core::fake::FakeBackend::demo())
+    (
+        Arc::new(budsbridge_core::fake::FakeBackend::demo()),
+        Arc::new(budsbridge_core::fake::FakeSourceBackend::demo()),
+    )
 }
 
 fn supports_mica() -> bool {

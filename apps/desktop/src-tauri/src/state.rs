@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, MutexGuard, PoisonError};
 
-use budsbridge_core::{Runtime, RuntimeHandle, Settings};
+use budsbridge_core::{BridgeHandle, BridgeRuntime, Runtime, RuntimeHandle, Settings};
 use serde::Serialize;
 
 /// What the UI needs to know about the running app.
@@ -20,6 +20,7 @@ pub struct AppInfo {
 
 pub struct AppState {
     runtime: Runtime,
+    bridge: BridgeRuntime,
     settings: Mutex<Settings>,
     settings_path: PathBuf,
     warnings: Mutex<Vec<String>>,
@@ -32,9 +33,16 @@ fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
 }
 
 impl AppState {
-    pub fn new(runtime: Runtime, settings: Settings, settings_path: PathBuf, mica: bool) -> Self {
+    pub fn new(
+        runtime: Runtime,
+        bridge: BridgeRuntime,
+        settings: Settings,
+        settings_path: PathBuf,
+        mica: bool,
+    ) -> Self {
         Self {
             runtime,
+            bridge,
             settings: Mutex::new(settings),
             settings_path,
             warnings: Mutex::new(Vec::new()),
@@ -45,6 +53,10 @@ impl AppState {
 
     pub fn runtime(&self) -> RuntimeHandle {
         self.runtime.handle()
+    }
+
+    pub fn bridge(&self) -> BridgeHandle {
+        self.bridge.handle()
     }
 
     pub fn settings(&self) -> Settings {
