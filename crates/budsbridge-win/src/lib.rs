@@ -4,6 +4,8 @@
 //!   grouped by device container.
 //! * Connects/disconnects them with `KSPROPSETID_BtAudio` one-shot requests.
 //! * Watches endpoint state changes with `IMMNotificationClient`.
+//! * Bridge mode: receives a paired phone's audio with
+//!   `AudioPlaybackConnection` ([`PhoneAudioBackend`]).
 //!
 //! Only [`classify`] is compiled on other platforms, so its logic is tested
 //! everywhere.
@@ -22,8 +24,12 @@ mod ks;
 mod notify;
 #[cfg(windows)]
 mod os;
+#[cfg(windows)]
+mod phone;
 
 #[cfg(windows)]
 pub use backend::WindowsBackend;
 #[cfg(windows)]
 pub use os::{supports_mica, windows_build};
+#[cfg(windows)]
+pub use phone::PhoneAudioBackend;
