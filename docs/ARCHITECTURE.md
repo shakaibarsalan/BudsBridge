@@ -78,11 +78,13 @@ The core never calls Windows directly. It talks to traits, which keeps every
 decision unit-testable:
 
 ```rust
+// crates/budsbridge-core/src/backend.rs
 pub trait DeviceBackend: Send + Sync {
-    fn list_audio_devices(&self) -> Result<Vec<AudioDevice>>;
-    fn connect(&self, id: &DeviceId) -> Result<()>;      // async in effect: completion arrives as a DeviceEvent
-    fn disconnect(&self, id: &DeviceId) -> Result<()>;
-    fn subscribe(&self, sink: EventSink) -> Result<Subscription>;
+    fn name(&self) -> &'static str;                  // "windows" | "demo"
+    fn list_devices(&self) -> Result<Vec<AudioDevice>, BackendError>;
+    fn connect(&self, id: &DeviceId) -> Result<(), BackendError>;    // a request; the result shows up in list_devices
+    fn disconnect(&self, id: &DeviceId) -> Result<(), BackendError>;
+    fn watch(&self, notify: ChangeNotifier) -> Result<Watch, BackendError>;
 }
 
 pub trait AudioSource: Send + Sync {               // Phase 2
@@ -140,17 +142,17 @@ BudsBridge/
 Each milestone is a series of small, conventional commits (`feat:`, `fix:`,
 `test:`, `docs:`, `ci:`, `chore:`).
 
-| Milestone | Scope | Done when |
-|-----------|-------|-----------|
-| **M0** Scaffold | Workspace, Tauri app skeleton, CI, lint/format | CI is green on `windows-latest` |
-| **M1** Core | Device model, state machine, reconnect policy, settings | Unit tests cover all state transitions |
-| **M2** Windows backend | Enumerate paired audio devices, group endpoints by container, KS connect/disconnect, status events | Hardware spikes S1–S2 pass on your laptop |
-| **M3** MVP app | Tray icon with live status, device list, one-click connect/disconnect, global hotkeys, auto-reconnect, start with Windows | Manual checklist passes |
-| **M4** UI | Implement the reference design (Mica, dark/light) | Matches your screenshots ⛔ *blocked until screenshots arrive* |
-| **P2a** Bridge: Bluetooth | `AudioPlaybackConnection` source: the phone streams to the laptop and is heard on the earbuds | Spike S3 is acceptable |
-| **P2b** Bridge: scrcpy | Bundled scrcpy/adb sidecar, audio-only, USB + Wi-Fi ADB | Spike S4 passes |
-| **P2c** Bridge UI | Sources panel, per-source volume, latency indicator | — |
-| **P3** Smart rules | Priority/ducking in hub mode, best-effort hand-over, optional companion app | Rules unit-tested; manual test |
+| Milestone | Scope | Done when | Status |
+|-----------|-------|-----------|--------|
+| **M0** Scaffold | Workspace, Tauri app skeleton, CI, lint/format | CI is green on `windows-latest` | ✅ |
+| **M1** Core | Device model, state machine, reconnect policy, settings | Unit tests cover all state transitions | ✅ |
+| **M2** Windows backend | Enumerate paired audio devices, group endpoints by container, KS connect/disconnect, status events | Hardware spikes S1–S2 pass on your laptop | 🧪 code done, awaiting [hardware check](HARDWARE_TESTING.md) |
+| **M3** MVP app | Tray icon with live status, device list, one-click connect/disconnect, global hotkeys, auto-reconnect, start with Windows | Manual checklist passes | 🧪 code done, awaiting [hardware check](HARDWARE_TESTING.md) |
+| **M4** UI | Implement the reference design (Mica, dark/light) | Matches your screenshots | ⛔ blocked until screenshots arrive |
+| **P2a** Bridge: Bluetooth | `AudioPlaybackConnection` source: the phone streams to the laptop and is heard on the earbuds | Spike S3 is acceptable | ⏳ |
+| **P2b** Bridge: scrcpy | Bundled scrcpy/adb sidecar, audio-only, USB + Wi-Fi ADB | Spike S4 passes | ⏳ |
+| **P2c** Bridge UI | Sources panel, per-source volume, latency indicator | — | ⏳ |
+| **P3** Smart rules | Priority/ducking in hub mode, best-effort hand-over, optional companion app | Rules unit-tested; manual test | ⏳ |
 
 ---
 
