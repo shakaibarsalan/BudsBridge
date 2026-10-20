@@ -1,7 +1,6 @@
-# BudsBridge: Architecture Proposal
+# BudsBridge: Architecture
 
-> **Status:** 🟡 **Proposed, waiting for approval.** No application code will be
-> written until this proposal is approved.
+> **Status:** ✅ **Approved (2026-10-20):** Tauri 2 + Rust core + React/TypeScript.
 > Background and constraints: [FEASIBILITY.md](FEASIBILITY.md).
 
 ---
