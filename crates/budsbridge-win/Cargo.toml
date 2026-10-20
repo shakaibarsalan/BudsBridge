@@ -1,0 +1,15 @@
+[package]
+name = "budsbridge-win"
+description = "Windows backend for BudsBridge: Core Audio endpoints and Bluetooth audio connect/disconnect."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+repository.workspace = true
+publish = false
+
+[dependencies]
+budsbridge-core.workspace = true
+log.workspace = true
+
+[lints]
+workspace = true
