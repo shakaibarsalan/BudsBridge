@@ -1,0 +1,69 @@
+name: Release
+
+# Push a tag like v0.1.0 (matching tauri.conf.json) to publish a GitHub Release
+# with the portable exe, the installer and checksums. Release notes come from
+# docs/releases/<tag>.md.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing tag to rebuild, e.g. v0.1.0
+        required: true
+
+permissions:
+  contents: write
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  windows:
+    name: Build and publish (Windows)
+    runs-on: windows-latest
+    env:
+      TAG: ${{ github.event.inputs.tag || github.ref_name }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.TAG }}
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: apps/desktop/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/desktop/pnpm-lock.yaml
+      - name: Check the tag matches the app version
+        run: |
+          version=$(node -p "require('./apps/desktop/src-tauri/tauri.conf.json').version")
+          if [ "v$version" != "$TAG" ]; then
+            echo "tauri.conf.json is v$version but the tag is $TAG" >&2
+            exit 1
+          fi
+          test -f "docs/releases/$TAG.md" || { echo "missing docs/releases/$TAG.md" >&2; exit 1; }
+      - name: Build
+        working-directory: apps/desktop
+        run: pnpm install --frozen-lockfile && pnpm tauri build --ci
+      - name: Collect release files
+        run: |
+          version="${TAG#v}"
+          mkdir -p release
+          cp target/release/budsbridge.exe release/BudsBridge.exe
+          cp target/release/bundle/nsis/*-setup.exe "release/BudsBridge-${version}-windows-x64-setup.exe"
+          (cd release && sha256sum BudsBridge*.exe > SHA256SUMS.txt && cat SHA256SUMS.txt)
+          ls -l release
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.TAG }}
+          name: BudsBridge ${{ env.TAG }}
+          body_path: docs/releases/${{ env.TAG }}.md
+          # 0.x builds have not been through the hardware checklist yet.
+          prerelease: ${{ startsWith(env.TAG, 'v0.') }}
+          files: release/*
+          fail_on_unmatched_files: true
