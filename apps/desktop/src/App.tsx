@@ -1,15 +1,17 @@
 import { useCallback, useEffect, useState } from "react";
 
 import { DeviceCard } from "./components/DeviceCard";
+import { PhoneAudioPanel } from "./components/PhoneAudioPanel";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { api } from "./lib/api";
 import { isEngaged } from "./lib/format";
-import type { AppInfo, DeviceView, Settings } from "./lib/types";
-import { useDevices } from "./lib/useDevices";
+import type { AppInfo, DeviceView, Settings, SourceView } from "./lib/types";
+import { useLiveList } from "./lib/useLiveList";
 
 // Functional MVP layout. The final look follows the reference design.
 export function App() {
-  const { devices, error: loadError } = useDevices();
+  const { items: devices, error: loadError } = useLiveList(api.listDevices, api.onDevicesChanged);
+  const { items: phones } = useLiveList(api.listSources, api.onSourcesChanged);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -39,6 +41,11 @@ export function App() {
     setActionError(null);
     const request = isEngaged(device.state) ? api.disconnect(device.id) : api.connect(device.id);
     request.catch((err: unknown) => setActionError(String(err)));
+  }, []);
+
+  const togglePhone = useCallback((phone: SourceView, enabled: boolean) => {
+    setActionError(null);
+    api.setSourceEnabled(phone.id, enabled).catch((err: unknown) => setActionError(String(err)));
   }, []);
 
   const makeHotkeyTarget = useCallback(
@@ -86,6 +93,8 @@ export function App() {
             </ul>
           )}
         </section>
+
+        <PhoneAudioPanel phones={phones} onToggle={togglePhone} />
 
         {settings && (
           <SettingsPanel

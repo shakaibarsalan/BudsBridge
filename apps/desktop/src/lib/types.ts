@@ -13,6 +13,18 @@ export interface DeviceView {
   lastError: string | null;
 }
 
+export type BridgeState = "off" | "connecting" | "streaming" | "waiting";
+
+/** A paired phone whose audio can play through the laptop (bridge mode). */
+export interface SourceView {
+  id: string;
+  name: string;
+  /** The user wants this phone's audio in the buds. */
+  enabled: boolean;
+  state: BridgeState;
+  lastError: string | null;
+}
+
 export interface ReconnectPolicy {
   initialDelayMs: number;
   maxDelayMs: number;
@@ -27,6 +39,7 @@ export interface Settings {
   preferredDevice: string | null;
   toggleHotkey: string | null;
   startWithWindows: boolean;
+  bridgedPhones: string[];
 }
 
 export interface AppInfo {

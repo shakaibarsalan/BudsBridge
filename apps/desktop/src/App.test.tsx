@@ -4,7 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { App } from "./App";
 import { api } from "./lib/api";
-import type { AppInfo, DeviceView, Settings } from "./lib/types";
+import type { AppInfo, DeviceView, Settings, SourceView } from "./lib/types";
 
 vi.mock("./lib/api", () => ({
   api: {
@@ -16,6 +16,9 @@ vi.mock("./lib/api", () => ({
     updateSettings: vi.fn(),
     onDevicesChanged: vi.fn(),
     onSettingsChanged: vi.fn(),
+    listSources: vi.fn(),
+    setSourceEnabled: vi.fn(),
+    onSourcesChanged: vi.fn(),
   },
 }));
 
@@ -29,6 +32,7 @@ const settings: Settings = {
   preferredDevice: null,
   toggleHotkey: "Ctrl+Alt+B",
   startWithWindows: false,
+  bridgedPhones: [],
 };
 
 const info: AppInfo = { backend: "demo", version: "0.1.0", mica: false, warnings: [] };
@@ -44,6 +48,15 @@ const buds: DeviceView = {
 
 let pushDevices: (devices: DeviceView[]) => void = () => {};
 let pushSettings: (settings: Settings) => void = () => {};
+let pushSources: (sources: SourceView[]) => void = () => {};
+
+const phone: SourceView = {
+  id: "phone",
+  name: "Pixel",
+  enabled: false,
+  state: "off",
+  lastError: null,
+};
 
 beforeEach(() => {
   mocked.appInfo.mockResolvedValue(info);
@@ -58,6 +71,12 @@ beforeEach(() => {
   });
   mocked.onSettingsChanged.mockImplementation(async (handler) => {
     pushSettings = handler;
+    return () => {};
+  });
+  mocked.listSources.mockResolvedValue([phone]);
+  mocked.setSourceEnabled.mockResolvedValue(undefined);
+  mocked.onSourcesChanged.mockImplementation(async (handler) => {
+    pushSources = handler;
     return () => {};
   });
 });
@@ -125,8 +144,26 @@ describe("App", () => {
     render(<App />);
     const checkbox = await screen.findByRole("checkbox", { name: /Auto-reconnect/ });
     expect(checkbox).toBeChecked();
-    act(() => pushSettings({ ...settings, autoReconnect: false }));
+    act(() => pushSettings({ ...settings, autoReconnect: false, toggleHotkey: "Ctrl+F12" }));
     expect(checkbox).not.toBeChecked();
+    expect(screen.getByLabelText("Toggle hotkey")).toHaveValue("Ctrl+F12");
+  });
+
+  it("turns phone audio on and shows its progress", async () => {
+    render(<App />);
+    await userEvent.click(await screen.findByRole("switch", { name: "Hear Pixel in my buds" }));
+    expect(mocked.setSourceEnabled).toHaveBeenCalledWith("phone", true);
+
+    act(() => pushSources([{ ...phone, enabled: true, state: "streaming" }]));
+    const card = screen.getByRole("listitem", { name: "Pixel" });
+    expect(within(card).getByText("Playing phone audio")).toBeInTheDocument();
+    expect(within(card).getByRole("switch")).toBeChecked();
+  });
+
+  it("explains how to add a phone when none is paired", async () => {
+    mocked.listSources.mockResolvedValue([]);
+    render(<App />);
+    expect(await screen.findByText(/No phone is paired with this laptop yet/)).toBeInTheDocument();
   });
 
   it("reports failed requests", async () => {

@@ -232,6 +232,10 @@ input:focus-visible {
   align-items: flex-start;
 }
 
+.small {
+  font-size: 12px;
+}
+
 .switch small {
   display: block;
   color: var(--muted);

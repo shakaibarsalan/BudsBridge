@@ -1,4 +1,4 @@
-import type { AudioProfile, ConnectionState, DeviceView } from "./types";
+import type { AudioProfile, BridgeState, ConnectionState, DeviceView } from "./types";
 
 const STATE_LABELS: Record<ConnectionState, string> = {
   connected: "Connected",
@@ -30,4 +30,15 @@ export function profileLabel(profile: AudioProfile): string {
 /** True when the primary action should disconnect rather than connect. */
 export function isEngaged(state: ConnectionState): boolean {
   return state === "connected" || state === "connecting";
+}
+
+const BRIDGE_LABELS: Record<BridgeState, string> = {
+  off: "Off",
+  connecting: "Connecting to the phone…",
+  streaming: "Playing phone audio",
+  waiting: "Waiting for the phone (retrying)",
+};
+
+export function bridgeStatusLabel(state: BridgeState): string {
+  return BRIDGE_LABELS[state];
 }

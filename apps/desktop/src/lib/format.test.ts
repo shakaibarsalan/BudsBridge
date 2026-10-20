@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { isEngaged, profileLabel, statusLabel } from "./format";
+import { bridgeStatusLabel, isEngaged, profileLabel, statusLabel } from "./format";
 import type { DeviceView } from "./types";
 
 const base: DeviceView = {
@@ -39,5 +39,14 @@ describe("helpers", () => {
     expect(isEngaged("connecting")).toBe(true);
     expect(isEngaged("disconnecting")).toBe(false);
     expect(isEngaged("disconnected")).toBe(false);
+  });
+});
+
+describe("bridgeStatusLabel", () => {
+  it("describes every bridge state", () => {
+    expect(bridgeStatusLabel("off")).toBe("Off");
+    expect(bridgeStatusLabel("connecting")).toBe("Connecting to the phone…");
+    expect(bridgeStatusLabel("streaming")).toBe("Playing phone audio");
+    expect(bridgeStatusLabel("waiting")).toBe("Waiting for the phone (retrying)");
   });
 });

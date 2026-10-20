@@ -1,22 +1,26 @@
 import { useEffect, useState } from "react";
 
-import { api } from "./api";
-import type { DeviceView } from "./types";
+import type { UnlistenFn } from "@tauri-apps/api/event";
 
-/** Device list kept in sync with the Rust runtime. */
-export function useDevices() {
-  const [devices, setDevices] = useState<DeviceView[] | null>(null);
+/**
+ * A list kept in sync with a Rust runtime: loads it once, then follows the
+ * runtime's change events. `load` and `subscribe` must be stable references.
+ */
+export function useLiveList<T>(
+  load: () => Promise<T[]>,
+  subscribe: (handler: (items: T[]) => void) => Promise<UnlistenFn>,
+) {
+  const [items, setItems] = useState<T[] | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
-    const unlisten = api.onDevicesChanged((next) => {
-      if (active) setDevices(next);
+    const unlisten = subscribe((next) => {
+      if (active) setItems(next);
     });
-    api
-      .listDevices()
+    load()
       .then((initial) => {
-        if (active) setDevices((current) => current ?? initial);
+        if (active) setItems((current) => current ?? initial);
       })
       .catch((err: unknown) => {
         if (active) setError(String(err));
@@ -25,7 +29,7 @@ export function useDevices() {
       active = false;
       void unlisten.then((stop) => stop());
     };
-  }, []);
+  }, [load, subscribe]);
 
-  return { devices, error };
+  return { items, error };
 }
