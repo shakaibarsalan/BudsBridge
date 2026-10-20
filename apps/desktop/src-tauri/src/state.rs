@@ -1,0 +1,117 @@
+//! Application state shared by commands, the tray and the hotkey handler.
+
+use std::fs;
+use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::{Mutex, MutexGuard, PoisonError};
+
+use budsbridge_core::{Runtime, RuntimeHandle, Settings};
+use serde::Serialize;
+
+/// What the UI needs to know about the running app.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AppInfo {
+    pub backend: &'static str,
+    pub version: String,
+    pub mica: bool,
+    pub warnings: Vec<String>,
+}
+
+pub struct AppState {
+    runtime: Runtime,
+    settings: Mutex<Settings>,
+    settings_path: PathBuf,
+    warnings: Mutex<Vec<String>>,
+    mica: bool,
+    quitting: AtomicBool,
+}
+
+fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
+    mutex.lock().unwrap_or_else(PoisonError::into_inner)
+}
+
+impl AppState {
+    pub fn new(runtime: Runtime, settings: Settings, settings_path: PathBuf, mica: bool) -> Self {
+        Self {
+            runtime,
+            settings: Mutex::new(settings),
+            settings_path,
+            warnings: Mutex::new(Vec::new()),
+            mica,
+            quitting: AtomicBool::new(false),
+        }
+    }
+
+    pub fn runtime(&self) -> RuntimeHandle {
+        self.runtime.handle()
+    }
+
+    pub fn settings(&self) -> Settings {
+        lock(&self.settings).clone()
+    }
+
+    /// Persists new settings and hands the connection part to the runtime.
+    pub fn store_settings(&self, settings: Settings) -> Result<(), String> {
+        settings
+            .save(&self.settings_path)
+            .map_err(|err| format!("Could not save settings: {err}"))?;
+        self.runtime.handle().configure(settings.controller_config());
+        *lock(&self.settings) = settings;
+        Ok(())
+    }
+
+    pub fn set_warnings(&self, warnings: Vec<String>) {
+        *lock(&self.warnings) = warnings;
+    }
+
+    pub fn info(&self, version: String) -> AppInfo {
+        AppInfo {
+            backend: self.runtime.handle().backend_name(),
+            version,
+            mica: self.mica,
+            warnings: lock(&self.warnings).clone(),
+        }
+    }
+
+    pub fn is_quitting(&self) -> bool {
+        self.quitting.load(Ordering::SeqCst)
+    }
+
+    pub fn set_quitting(&self) {
+        self.quitting.store(true, Ordering::SeqCst);
+    }
+}
+
+/// Loads settings; a corrupt file is moved aside and defaults are used.
+pub fn load_settings(path: &Path) -> Settings {
+    match Settings::load(path) {
+        Ok(settings) => settings,
+        Err(err) => {
+            log::warn!("{err}; starting with default settings");
+            let backup = path.with_extension("invalid.json");
+            if let Err(err) = fs::rename(path, &backup) {
+                log::warn!("could not move the invalid settings file aside: {err}");
+            }
+            Settings::default()
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn corrupt_settings_are_moved_aside() {
+        let dir = std::env::temp_dir().join(format!("budsbridge-test-{}", std::process::id()));
+        fs::create_dir_all(&dir).unwrap();
+        let path = dir.join("settings.json");
+        fs::write(&path, "{ broken").unwrap();
+
+        assert_eq!(load_settings(&path), Settings::default());
+        assert!(!path.exists());
+        assert!(dir.join("settings.invalid.json").exists());
+        fs::remove_dir_all(dir).unwrap();
+    }
+}

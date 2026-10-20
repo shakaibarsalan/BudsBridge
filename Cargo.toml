@@ -3,6 +3,7 @@ resolver = "3"
 members = [
     "crates/budsbridge-core",
     "crates/budsbridge-win",
+    "apps/desktop/src-tauri",
 ]
 # The desktop app needs a webview toolchain; plain `cargo test` covers the libraries.
 default-members = ["crates/budsbridge-core", "crates/budsbridge-win"]
