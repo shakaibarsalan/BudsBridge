@@ -13,7 +13,7 @@ APP=${APP:-$ROOT/target/debug/budsbridge}
 OUT=${OUT:-$ROOT/docs/media}
 DISPLAY_NUM=${DISPLAY_NUM:-:97}
 SCALE=2              # render at 2x for sharp images
-WIDTH=420 HEIGHT=780 # logical window size
+WIDTH=420 HEIGHT=1110 # logical window size
 PW=$((WIDTH * SCALE)) PH=$((HEIGHT * SCALE))
 
 WORK=$(mktemp -d)
@@ -68,18 +68,15 @@ sleep 1.5
 click 86 196   # Demo Buds Pro: Connect
 sleep 0.4; shot connecting
 sleep 2.2; shot connected
+click 52 697   # Phone audio: hear Demo Phone in the buds as well
+sleep 0.5; shot phone-connecting
+sleep 2.4; shot phone
 click 286 196  # Demo Buds Pro becomes the hotkey target
 sleep 1.2
-key ctrl+alt+b # hotkey: disconnect it
+key ctrl+alt+b # hotkey: release the buds
 sleep 2.4
-key ctrl+alt+b # hotkey: connect it again
-sleep 2.4
-click 95 329   # Demo Headphones: Disconnect
-sleep 2.4
-click 39 571   # Auto-reconnect off
-sleep 1.2; shot settings
-click 39 571   # and back on
-sleep 1.5
+key ctrl+alt+b # hotkey: connect them again
+sleep 2.6; shot settings
 
 kill -INT "$FFMPEG"; wait "$FFMPEG" || true
 cp "$WORK/demo.mp4" "$OUT/demo.mp4"
