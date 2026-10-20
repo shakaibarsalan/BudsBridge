@@ -112,7 +112,13 @@ fn build_menu(app: &AppHandle, views: &[DeviceView]) -> tauri::Result<Menu<Wry>>
         true,
         None::<&str>,
     )?)?;
-    menu.append(&MenuItem::with_id(app, QUIT_ID, "Quit", true, None::<&str>)?)?;
+    menu.append(&MenuItem::with_id(
+        app,
+        QUIT_ID,
+        "Quit",
+        true,
+        None::<&str>,
+    )?)?;
     Ok(menu)
 }
 

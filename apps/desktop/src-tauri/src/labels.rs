@@ -47,12 +47,30 @@ mod tests {
     #[test]
     fn menu_labels() {
         use ConnectionState::*;
-        assert_eq!(menu_label(&view("Buds", Connected, None)), "Buds (connected)");
-        assert_eq!(menu_label(&view("Buds", Connecting, None)), "Buds (connecting…)");
-        assert_eq!(menu_label(&view("Buds", Connecting, Some(2))), "Buds (reconnecting…)");
-        assert_eq!(menu_label(&view("Buds", Disconnected, Some(2))), "Buds (will retry)");
-        assert_eq!(menu_label(&view("Buds", Disconnected, None)), "Buds (not connected)");
-        assert_eq!(menu_label(&view("Buds", Disconnecting, None)), "Buds (disconnecting…)");
+        assert_eq!(
+            menu_label(&view("Buds", Connected, None)),
+            "Buds (connected)"
+        );
+        assert_eq!(
+            menu_label(&view("Buds", Connecting, None)),
+            "Buds (connecting…)"
+        );
+        assert_eq!(
+            menu_label(&view("Buds", Connecting, Some(2))),
+            "Buds (reconnecting…)"
+        );
+        assert_eq!(
+            menu_label(&view("Buds", Disconnected, Some(2))),
+            "Buds (will retry)"
+        );
+        assert_eq!(
+            menu_label(&view("Buds", Disconnected, None)),
+            "Buds (not connected)"
+        );
+        assert_eq!(
+            menu_label(&view("Buds", Disconnecting, None)),
+            "Buds (disconnecting…)"
+        );
     }
 
     #[test]
@@ -60,7 +78,11 @@ mod tests {
         use ConnectionState::*;
         assert_eq!(tooltip(&[]), "BudsBridge: no buds connected");
         assert_eq!(
-            tooltip(&[view("A", Connected, None), view("B", Connecting, None), view("C", Connected, None)]),
+            tooltip(&[
+                view("A", Connected, None),
+                view("B", Connecting, None),
+                view("C", Connected, None)
+            ]),
             "BudsBridge: A, C connected"
         );
     }

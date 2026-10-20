@@ -56,7 +56,9 @@ impl AppState {
         settings
             .save(&self.settings_path)
             .map_err(|err| format!("Could not save settings: {err}"))?;
-        self.runtime.handle().configure(settings.controller_config());
+        self.runtime
+            .handle()
+            .configure(settings.controller_config());
         *lock(&self.settings) = settings;
         Ok(())
     }

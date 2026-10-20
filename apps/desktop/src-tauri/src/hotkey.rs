@@ -33,7 +33,7 @@ pub fn register(app: &AppHandle, hotkey: Option<&str>) -> Result<(), String> {
     let shortcut: Shortcut = hotkey
         .parse()
         .map_err(|err| format!("\"{hotkey}\" is not a valid hotkey ({err})."))?;
-    shortcuts.register(shortcut).map_err(|err| {
-        format!("Could not register {hotkey}; another app may be using it ({err}).")
-    })
+    shortcuts
+        .register(shortcut)
+        .map_err(|err| format!("Could not register {hotkey}; another app may be using it ({err})."))
 }
