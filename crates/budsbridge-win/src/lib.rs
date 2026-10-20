@@ -20,6 +20,10 @@ mod endpoints;
 mod ks;
 #[cfg(windows)]
 mod notify;
+#[cfg(windows)]
+mod os;
 
 #[cfg(windows)]
 pub use backend::WindowsBackend;
+#[cfg(windows)]
+pub use os::{supports_mica, windows_build};
