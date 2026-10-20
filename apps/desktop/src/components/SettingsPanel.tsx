@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 
 import type { Settings } from "../lib/types";
 
@@ -10,8 +10,13 @@ interface SettingsPanelProps {
 
 export function SettingsPanel({ settings, warnings, onChange }: SettingsPanelProps) {
   const [hotkey, setHotkey] = useState(settings.toggleHotkey ?? "");
-
-  useEffect(() => setHotkey(settings.toggleHotkey ?? ""), [settings.toggleHotkey]);
+  // Follow a hotkey changed elsewhere (e.g. saved, or reset) during render, not
+  // in an effect, so a late effect can never overwrite what is being typed.
+  const [syncedHotkey, setSyncedHotkey] = useState(settings.toggleHotkey);
+  if (settings.toggleHotkey !== syncedHotkey) {
+    setSyncedHotkey(settings.toggleHotkey);
+    setHotkey(settings.toggleHotkey ?? "");
+  }
 
   const saveHotkey = (event: FormEvent) => {
     event.preventDefault();
