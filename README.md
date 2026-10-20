@@ -6,7 +6,7 @@
 
 **Hear your phone and your laptop in the same Bluetooth buds, even buds without multipoint.**
 
-A small tray app for Windows 11. The buds stay connected to the laptop, and your phone plays its audio through the laptop into the same buds, so you hear both and never switch. When you do want the buds back on the phone, one click or a hotkey hands them over. Everything runs on your machine. A single `.exe`, no account, nothing to install on your phone.
+A small dock for Windows 11 that opens from the tray. The buds stay connected to the laptop, and your phone plays its audio through the laptop into the same buds, so you hear both and never switch. When you do want the buds back on the phone, one click or a hotkey hands them over. Everything runs on your machine. A single `.exe`, no account, nothing to install on your phone.
 
 [![Download](https://img.shields.io/badge/%E2%86%93%20Download-Windows%2011-0067c0?style=for-the-badge)](https://github.com/shakaibarsalan/BudsBridge/releases)
 [![Feasibility study](https://img.shields.io/badge/Read-feasibility%20study-1f1e1d?style=for-the-badge)](docs/FEASIBILITY.md)
@@ -16,9 +16,9 @@ A small tray app for Windows 11. The buds stay connected to the laptop, and your
 ![Built with Tauri 2 and Rust](https://img.shields.io/badge/built%20with-Tauri%202%20%2B%20Rust-1f1e1d)
 ![Status: preview](https://img.shields.io/badge/status-preview-b26b00)
 
-<img src="docs/media/demo.gif" width="420" alt="BudsBridge connecting buds, turning on phone audio, and toggling the buds with the Ctrl+Alt+B hotkey">
+<img src="docs/media/demo.gif" width="440" alt="The BudsBridge dock: phone audio turned on, buds handed back, the hotkey bringing them back, and the device list">
 
-<sub>Recorded in demo mode with simulated devices, so it runs anywhere: the buds connect to the laptop, <b>Hear Demo Phone in my buds</b> brings the phone's audio in as well (<i>Connecting to the phone…</i> then <i>Playing phone audio</i>), and <code>Ctrl+Alt+B</code> releases and reconnects the buds. Also as <a href="docs/media/demo.mp4">MP4</a>. A video on real buds follows the first hardware run.</sub>
+<sub>The dock, recorded in demo mode with simulated devices so it runs anywhere: the <b>Phone audio</b> tile brings the phone in (the green link, now <i>2 sources</i> in the buds), the <b>Buds</b> tile hands the buds back, <code>Ctrl+Alt+B</code> brings them back from anywhere, and <b>Devices</b> opens the full list in place. Also as <a href="docs/media/demo.mp4">MP4</a>.</sub>
 
 </div>
 
@@ -43,12 +43,13 @@ Phone ──Bluetooth──► Laptop ──Bluetooth──► Buds
 
 | | |
 |---|---|
+| **Tray dock** | click the tray icon and a small panel opens beside it, like a Mac menu bar app: a live picture of what plays where (phone → laptop → buds), how many sound sources reach your buds, four tiles that are also the switches, and the device and phone lists. It closes when you click elsewhere. The full window only opens for **All settings** |
 | **Phone audio (bridge mode)** | turn on **Hear my phone in my buds** once and the phone's music, videos and voice notes play through the laptop into the buds, mixed with the laptop's sound. It stays on: if the phone goes away it waits and reconnects (5 s, 10 s, 20 s, 40 s, then every minute), and it comes back on by itself after a restart |
 | **See your audio devices** | every paired Bluetooth headset, earbud and speaker in one list, with its live state and profiles (Stereo for music, Hands-free for calls). One pair of buds shows up once, not as separate "Headphones" and "Headset" entries |
-| **Connect and disconnect** | one click in the window or in the tray menu. The state moves through *Connecting…* to *Connected*, and if the buds don't answer within 15 s you get a clear message instead of a spinner |
+| **Connect and disconnect** | one click on the **Buds** tile, the power button, the device list or the tray menu. The state moves through *Connecting…* to *Connected*, and if the buds don't answer within 15 s you get a clear message instead of a spinner |
 | **Hotkey** | `Ctrl+Alt+B` toggles your chosen buds from any app. Pick them with **Hotkey target**, change the key combination in Settings, or leave the field empty to turn it off |
 | **Auto-reconnect** | if the buds drop unexpectedly, out of range or the case closed, BudsBridge retries after 1 s, 2 s, 4 s … up to 30 s, eight times. It never retries after *you* disconnect, so the laptop doesn't fight your phone for the buds |
-| **Tray icon** | a filled icon while buds are connected and an outline when not, a tooltip naming what's connected, and a menu to toggle each device, switch auto-reconnect, open the window or quit. Closing the window keeps BudsBridge in the tray |
+| **Tray icon** | a filled icon while buds are connected and an outline when not, and a tooltip naming what's connected. Left-click opens the dock; right-click has a menu to toggle each device and phone, switch auto-reconnect, open settings or quit |
 | **Start with Windows** | starts minimized to the tray, ready for the hotkey |
 | **Windows 11 look** | Mica backdrop, and light and dark mode follow your system setting |
 
@@ -56,13 +57,12 @@ Phone ──Bluetooth──► Laptop ──Bluetooth──► Buds
 
 | | |
 |---|---|
-| <img src="docs/media/devices.png" width="300" alt="Device list"> | **1. Pair once, then open BudsBridge.** Pair the buds with the laptop in **Settings → Bluetooth & devices** the usual way. BudsBridge lists them, plus anything else you've paired. A green dot means connected. |
-| <img src="docs/media/connecting.png" width="300" alt="Connecting"> | **2. Connect.** Take the buds out of the case, make sure the phone isn't holding them, and click **Connect**. You'll see *Connecting…* while Windows brings up the link. |
-| <img src="docs/media/connected.png" width="300" alt="Connected"> | **3. Listen.** Once connected the dot turns green, the tray icon fills in, and Windows routes the sound to the buds. **Disconnect** hands them back, for example to your phone. |
-| <img src="docs/media/phone.png" width="300" alt="Phone audio playing through the laptop"> | **4. Hear your phone too.** Pair the phone with the laptop once (Windows Settings → Bluetooth & devices → Add device). It appears under **Phone audio**; switch on **Hear … in my buds**. After *Connecting to the phone…* it says *Playing phone audio*, and whatever plays on the phone now plays in the buds, along with the laptop. |
-| <img src="docs/media/settings.png" width="300" alt="Hotkey target and settings"> | **5. Make switching one keystroke.** Mark your buds as **Hotkey target**, and from then on `Ctrl+Alt+B` connects or releases them from anywhere. Below that, choose auto-reconnect, start with Windows, and the key combination. |
+| <img src="docs/media/dock.png" width="320" alt="The dock with the buds connected"> | **1. Pair once, then open the dock.** Pair the buds (and, for phone audio, your phone) with the laptop in **Settings → Bluetooth & devices**. Click the BudsBridge icon in the tray: the dock shows what is connected, as a picture and as tiles. |
+| <img src="docs/media/dock-bridge.png" width="320" alt="Phone and laptop audio in the buds"> | **2. Hear your phone too.** Click the **Phone audio** tile. After *Connecting…* the link turns green, the headline says *Hearing phone + laptop* and the count shows **2 sources**: whatever plays on the phone now plays in the buds, along with the laptop. |
+| <img src="docs/media/dock-devices.png" width="320" alt="The device list opened in the dock"> | **3. Switch with one click or a key.** The **Buds** tile or the power button connects or releases the buds; `Ctrl+Alt+B` does the same from any app. **Devices** and **Phones** open the full lists in place. |
+| <img src="docs/media/settings.png" width="320" alt="The settings window"> | **4. Settings, only when you want them.** **All settings** (or the gear) opens the full window: pick the hotkey target and key combination, auto-reconnect, start with Windows, and every device and phone. |
 
-<p align="center"><img src="docs/media/light-dark.png" width="560" alt="Light and dark theme"><br><sub>Light and dark follow the system theme. On Windows 11 the window also gets the Mica backdrop, which this Linux recording can't show.</sub></p>
+<p align="center"><img src="docs/media/light-dark.png" width="600" alt="The dock in light and dark theme"><br><sub>Light and dark follow the system theme. On Windows 11 the dock and the window also get the Mica backdrop, which this Linux recording can't show.</sub></p>
 
 ## Install
 
@@ -185,7 +185,7 @@ The `.exe` isn't code-signed, because a certificate costs money. SmartScreen sho
 
 ## How it's built
 
-Rust and [Tauri 2](https://tauri.app), with a React 19 + TypeScript UI. Windows APIs (Core Audio, kernel streaming, COM) come through Microsoft's [`windows`](https://github.com/microsoft/windows-rs) crate. Bridge mode uses Windows' own `AudioPlaybackConnection`, which turns the laptop into a Bluetooth speaker for a paired phone. The logic is OS-independent and tested with in-memory backends: 57 Rust tests for the switching and bridge state machines, reconnect policies, settings and runtimes, more for endpoint naming and grouping and the tray labels, and 23 Vitest tests for the UI. CI runs rustfmt, clippy (warnings are errors) and all tests on Linux and Windows, builds the installer, and a tag publishes a release.
+Rust and [Tauri 2](https://tauri.app), with a React 19 + TypeScript UI. Windows APIs (Core Audio, kernel streaming, COM) come through Microsoft's [`windows`](https://github.com/microsoft/windows-rs) crate. Bridge mode uses Windows' own `AudioPlaybackConnection`, which turns the laptop into a Bluetooth speaker for a paired phone. The dock's look follows the menu bar panel of [InverterBar](https://github.com/ahkamboh/inverterbar): monochrome surfaces, restrained accents for what is live, and a hero picture that is a pure function of the current state. The logic is OS-independent and tested with in-memory backends: 57 Rust tests for the switching and bridge state machines, reconnect policies, settings and runtimes, more for endpoint naming, dock placement on any taskbar edge and the tray labels, and 39 Vitest tests for the dock and the settings window. CI runs rustfmt, clippy (warnings are errors) and all tests on Linux and Windows, builds the installer, and a tag publishes a release.
 
 The demo and screenshots above are recorded by [`scripts/record-demo.sh`](scripts/record-demo.sh). It starts the app in demo mode on a virtual display, clicks through the flow with `xdotool`, and captures it with `ffmpeg`, so every run of the script produces the same media.
 

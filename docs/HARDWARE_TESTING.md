@@ -33,14 +33,17 @@ cargo run -p budsbridge-win --example bt-audio -- list
 
 | # | Check | Expected |
 |---|-------|----------|
-| A1 | Start BudsBridge | Window lists your buds; tray icon appears |
+| A1 | Start BudsBridge | The dock opens beside the tray icon and lists your buds |
+| D1 | Click somewhere else, then left-click the tray icon | The dock closes, then opens again next to the icon (also with the taskbar on another edge) |
+| D2 | Open **Devices** in the dock | The dock grows upwards and stays on screen |
+| D3 | **All settings** (or the gear) | The full window opens and the dock closes |
 | A2 | Click **Connect** / **Disconnect** | Status goes *Connecting…* → *Connected* (and back) |
 | A3 | Tray icon | Filled icon when connected, outline when not; tooltip names the device |
 | A4 | Tray menu → click the device | Toggles it |
 | A5 | `Ctrl+Alt+B` anywhere | Toggles the hotkey target (or the connected/first device) |
 | A6 | Walk out of range (or turn Bluetooth on the buds off) and come back | *Reconnect attempt N scheduled* → *Reconnecting* → *Connected* |
 | A7 | Disconnect manually, wait 1 min | Stays disconnected (no auto-reconnect) |
-| A8 | Close the window | App keeps running in the tray; **Quit** in the tray exits |
+| A8 | Close the settings window | App keeps running in the tray; **Quit** (tray menu or the dock's ⋯ menu) exits |
 | A9 | Turn on **Start with Windows**, sign out and in | BudsBridge starts in the tray, window hidden |
 | A10 | Windows 11 light and dark mode | Mica backdrop visible; text readable in both themes |
 

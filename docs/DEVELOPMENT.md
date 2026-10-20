@@ -26,6 +26,9 @@ $env:BUDSBRIDGE_DEMO = "1"; pnpm tauri dev   # PowerShell
 BUDSBRIDGE_DEMO=1 pnpm tauri dev             # bash
 ```
 
+In demo mode the dock closes when it loses focus, like on Windows. To keep it open (handy on
+a virtual display or while recording), also set `BUDSBRIDGE_DOCK_PINNED=1`.
+
 ## Test
 
 ```bash
