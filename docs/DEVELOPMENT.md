@@ -50,7 +50,8 @@ pnpm tauri build   # target/release/bundle/nsis/BudsBridge_<version>_x64-setup.e
 1. Bump `version` in `apps/desktop/src-tauri/tauri.conf.json`, `apps/desktop/package.json` and
    the workspace `Cargo.toml`.
 2. Write the notes in `docs/releases/v<version>.md`.
-3. Tag and push: `git tag v<version> && git push origin v<version>`.
+3. Either tag and push (`git tag v<version> && git push origin v<version>`), or open
+   **Actions → Release → Run workflow** on `main` and enter `v<version>`; that run creates the tag.
 
 The **Release** workflow checks that the tag matches the app version, builds on Windows and
 publishes `BudsBridge.exe` (portable), the setup `.exe` and `SHA256SUMS.txt`. 0.x releases are
