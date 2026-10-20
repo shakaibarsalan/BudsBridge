@@ -14,7 +14,7 @@ A small tray app for Windows 11. The buds stay connected to the laptop, and your
 [![License: MIT](https://img.shields.io/badge/License-MIT-0067c0.svg)](LICENSE)
 ![Platform: Windows 11](https://img.shields.io/badge/platform-Windows%2011-1f1e1d)
 ![Built with Tauri 2 and Rust](https://img.shields.io/badge/built%20with-Tauri%202%20%2B%20Rust-1f1e1d)
-![Status: preview](https://img.shields.io/badge/status-preview%2C%20not%20yet%20hardware--tested-b26b00)
+![Status: preview](https://img.shields.io/badge/status-preview-b26b00)
 
 <img src="docs/media/demo.gif" width="420" alt="BudsBridge connecting buds, turning on phone audio, and toggling the buds with the Ctrl+Alt+B hotkey">
 
@@ -142,7 +142,7 @@ The reasoning behind every choice, including what is impossible, is in [docs/FEA
 | Step | Status |
 |---|---|
 | Device list, connect/disconnect, tray, hotkey, auto-reconnect, start with Windows | built; device listing confirmed on real hardware, switching awaiting the [hardware check](docs/HARDWARE_TESTING.md) |
-| Bridge mode: phone audio through the laptop over Bluetooth | built, awaiting the [hardware check](docs/HARDWARE_TESTING.md) |
+| Bridge mode: phone audio through the laptop over Bluetooth | built and working on the first real test (Windows 11 laptop, Android phone, TWS buds); delay and stutter not measured yet |
 | Final UI from the reference design | waiting on the design |
 | Phone audio over USB or Wi-Fi ADB (bundled scrcpy, audio only) | planned |
 | Audio sources panel with per-source volume and a latency indicator | planned |
@@ -150,7 +150,7 @@ The reasoning behind every choice, including what is impossible, is in [docs/FEA
 
 ## Honest notes
 
-- **Only partly tested on real hardware.** On a real Windows 11 laptop BudsBridge lists the paired buds and headsets correctly. Switching and bridge mode build, lint clean, pass every test in CI on Linux and Windows and run end to end in demo mode; their run on real buds and a real phone is the next step, and this README will say what it found.
+- **Tested on one real setup so far.** On a Windows 11 laptop with TWS buds and an Android phone, BudsBridge lists the paired devices correctly and bridge mode plays the phone through the laptop into the buds. Delay and stutter haven't been measured yet, and the rest of the [hardware checklist](docs/HARDWARE_TESTING.md) is still to run; this README will be updated with what it finds.
 - **Bridge mode is "dual connectivity" through the laptop, not in the buds.** The buds still hold one link, to the laptop. You hear the phone only while the laptop is on and in range; away from it, hand the buds to the phone.
 - **Phone audio arrives a little late**, roughly 0.2–0.4 s, because it makes two Bluetooth hops. Fine for music and podcasts; lip-sync is off if you watch a video on the phone's own screen.
 - **Two Bluetooth audio streams at once can stutter on some laptops**, because one radio carries both. Item B3 of the [hardware checklist](docs/HARDWARE_TESTING.md) checks yours.
