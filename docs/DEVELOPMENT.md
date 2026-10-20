@@ -45,6 +45,24 @@ cd apps/desktop
 pnpm tauri build   # target/release/bundle/nsis/BudsBridge_<version>_x64-setup.exe
 ```
 
+## Release
+
+1. Bump `version` in `apps/desktop/src-tauri/tauri.conf.json`, `apps/desktop/package.json` and
+   the workspace `Cargo.toml`.
+2. Write the notes in `docs/releases/v<version>.md`.
+3. Tag and push: `git tag v<version> && git push origin v<version>`.
+
+The **Release** workflow checks that the tag matches the app version, builds on Windows and
+publishes `BudsBridge.exe` (portable), the setup `.exe` and `SHA256SUMS.txt`. 0.x releases are
+marked as pre-releases until the hardware checklist passes.
+
+## README media
+
+`scripts/record-demo.sh` (Linux: Xvfb, xdotool, ffmpeg, ImageMagick) runs the app in demo mode
+on a virtual display, clicks through the main flow and writes the GIF, MP4 and screenshots to
+`docs/media/`. Build first with `cd apps/desktop && pnpm tauri build --debug --no-bundle`.
+Re-run it whenever the UI changes.
+
 ## Layout
 
 | Path | What |
@@ -53,4 +71,5 @@ pnpm tauri build   # target/release/bundle/nsis/BudsBridge_<version>_x64-setup.e
 | `crates/budsbridge-win` | Windows backend: Core Audio endpoints, `KSPROPSETID_BtAudio` connect/disconnect, notifications. `examples/bt-audio.rs` is a CLI for hardware checks. |
 | `apps/desktop/src-tauri` | Tauri shell: window, tray, global hotkey, autostart, commands. |
 | `apps/desktop/src` | React UI. |
-| `docs/` | Feasibility, architecture, hardware checklist. |
+| `scripts/` | `record-demo.sh` for the README media. |
+| `docs/` | Feasibility, architecture, hardware checklist, release notes, media. |

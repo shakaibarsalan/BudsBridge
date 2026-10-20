@@ -7,9 +7,10 @@ open an issue). It decides what we fix before calling the MVP done.
 ## 0. Setup
 
 - Pair your buds with the laptop in **Settings → Bluetooth & devices** (once).
-- Either download the installer from the latest CI run
-  (*Actions → CI → BudsBridge-windows-installer*) or build from source
-  (see [DEVELOPMENT.md](DEVELOPMENT.md)).
+- Download `BudsBridge.exe` from [Releases](https://github.com/shakaibarsalan/BudsBridge/releases)
+  and open it (no install needed), or build from source (see [DEVELOPMENT.md](DEVELOPMENT.md)).
+  SmartScreen warns once because the build isn't signed: **More info → Run anyway**.
+- The S1–S2 commands below need the source and Rust. If you only have the `.exe`, skip to section 2.
 - Logs: `%LOCALAPPDATA%\io.github.shakaibarsalan.budsbridge\logs`
 
 ## 1. Spikes S1–S2: the Windows backend on its own
