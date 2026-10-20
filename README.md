@@ -4,9 +4,9 @@
 
 <h1>BudsBridge</h1>
 
-**Switch Bluetooth earbuds between your phone and your Windows laptop in one click, even when the buds don't support multipoint.**
+**Hear your phone and your laptop in the same Bluetooth buds, even buds without multipoint.**
 
-A small tray app for Windows 11. It lists your paired Bluetooth audio devices, connects and disconnects them with a click or a global hotkey, and reconnects them on its own when they drop. Everything runs on your machine. A single `.exe`, no account, nothing to install on your phone.
+A small tray app for Windows 11. The buds stay connected to the laptop, and your phone plays its audio through the laptop into the same buds, so you hear both and never switch. When you do want the buds back on the phone, one click or a hotkey hands them over. Everything runs on your machine. A single `.exe`, no account, nothing to install on your phone.
 
 [![Download](https://img.shields.io/badge/%E2%86%93%20Download-Windows%2011-0067c0?style=for-the-badge)](https://github.com/shakaibarsalan/BudsBridge/releases)
 [![Feasibility study](https://img.shields.io/badge/Read-feasibility%20study-1f1e1d?style=for-the-badge)](docs/FEASIBILITY.md)
@@ -16,9 +16,9 @@ A small tray app for Windows 11. It lists your paired Bluetooth audio devices, c
 ![Built with Tauri 2 and Rust](https://img.shields.io/badge/built%20with-Tauri%202%20%2B%20Rust-1f1e1d)
 ![Status: preview](https://img.shields.io/badge/status-preview%2C%20not%20yet%20hardware--tested-b26b00)
 
-<img src="docs/media/demo.gif" width="420" alt="BudsBridge connecting buds, toggling them with the Ctrl+Alt+B hotkey, and changing settings">
+<img src="docs/media/demo.gif" width="420" alt="BudsBridge connecting buds, turning on phone audio, and toggling the buds with the Ctrl+Alt+B hotkey">
 
-<sub>Recorded in demo mode with simulated devices, so it runs anywhere: <b>Connect</b> goes through <i>Connecting…</i> to <i>Connected</i>, the buds become the hotkey target, <code>Ctrl+Alt+B</code> disconnects and reconnects them, the headphones are disconnected, and auto-reconnect is switched off and on. Also as <a href="docs/media/demo.mp4">MP4</a>. A video on real buds follows the first hardware run.</sub>
+<sub>Recorded in demo mode with simulated devices, so it runs anywhere: the buds connect to the laptop, <b>Hear Demo Phone in my buds</b> brings the phone's audio in as well (<i>Connecting to the phone…</i> then <i>Playing phone audio</i>), and <code>Ctrl+Alt+B</code> releases and reconnects the buds. Also as <a href="docs/media/demo.mp4">MP4</a>. A video on real buds follows the first hardware run.</sub>
 
 </div>
 
@@ -28,15 +28,22 @@ A small tray app for Windows 11. It lists your paired Bluetooth audio devices, c
 
 My earbuds don't support multipoint, so they talk to one device at a time. Moving from my phone to my laptop meant opening Bluetooth settings on the phone, disconnecting, then going to the laptop and connecting, every single time. A lot of people with budget buds live with the same thing.
 
-Software can't add multipoint: it is a feature of the earbuds' firmware, and no app on Windows or Android can change it ([why, with sources](docs/FEASIBILITY.md#1-why-the-problem-exists)). So BudsBridge works around it in two steps:
+Software can't make the buds hold two connections: that is multipoint, a feature of the earbuds' firmware, and no app on Windows or Android can change it ([why, with sources](docs/FEASIBILITY.md#1-why-the-problem-exists)). So BudsBridge gets the same result a different way:
 
-1. **Switch faster (built).** One click, a tray menu or a hotkey connects or releases the buds on the laptop, and it reconnects them if they drop out of range.
-2. **Stop switching (next).** The buds stay on the laptop and the phone's audio comes to the laptop, over Bluetooth with the laptop acting as a speaker, or over USB/Wi-Fi. Windows mixes it with the laptop's own sound, so you hear both and never switch at all.
+```
+Phone ──Bluetooth──► Laptop ──Bluetooth──► Buds
+                       ▲
+       the laptop's own sound (YouTube, Zoom)
+```
+
+1. **Stop switching: bridge mode.** The buds stay connected to the laptop only. The phone connects to the laptop too, as if the laptop were a Bluetooth speaker, and Windows mixes the phone's audio with the laptop's into the buds. You hear both, and nothing switches.
+2. **Switch fast when you leave.** When you walk away from the laptop, one click, the tray menu or `Ctrl+Alt+B` releases the buds for your phone, and connects them back when you return.
 
 ## What it does
 
 | | |
 |---|---|
+| **Phone audio (bridge mode)** | turn on **Hear my phone in my buds** once and the phone's music, videos and voice notes play through the laptop into the buds, mixed with the laptop's sound. It stays on: if the phone goes away it waits and reconnects (5 s, 10 s, 20 s, 40 s, then every minute), and it comes back on by itself after a restart |
 | **See your audio devices** | every paired Bluetooth headset, earbud and speaker in one list, with its live state and profiles (Stereo for music, Hands-free for calls). One pair of buds shows up once, not as separate "Headphones" and "Headset" entries |
 | **Connect and disconnect** | one click in the window or in the tray menu. The state moves through *Connecting…* to *Connected*, and if the buds don't answer within 15 s you get a clear message instead of a spinner |
 | **Hotkey** | `Ctrl+Alt+B` toggles your chosen buds from any app. Pick them with **Hotkey target**, change the key combination in Settings, or leave the field empty to turn it off |
@@ -52,7 +59,8 @@ Software can't add multipoint: it is a feature of the earbuds' firmware, and no 
 | <img src="docs/media/devices.png" width="300" alt="Device list"> | **1. Pair once, then open BudsBridge.** Pair the buds with the laptop in **Settings → Bluetooth & devices** the usual way. BudsBridge lists them, plus anything else you've paired. A green dot means connected. |
 | <img src="docs/media/connecting.png" width="300" alt="Connecting"> | **2. Connect.** Take the buds out of the case, make sure the phone isn't holding them, and click **Connect**. You'll see *Connecting…* while Windows brings up the link. |
 | <img src="docs/media/connected.png" width="300" alt="Connected"> | **3. Listen.** Once connected the dot turns green, the tray icon fills in, and Windows routes the sound to the buds. **Disconnect** hands them back, for example to your phone. |
-| <img src="docs/media/settings.png" width="300" alt="Hotkey target and settings"> | **4. Make it one keystroke.** Mark your buds as **Hotkey target**, and from then on `Ctrl+Alt+B` connects or releases them from anywhere. Below that, choose auto-reconnect, start with Windows, and the key combination. |
+| <img src="docs/media/phone.png" width="300" alt="Phone audio playing through the laptop"> | **4. Hear your phone too.** Pair the phone with the laptop once (Windows Settings → Bluetooth & devices → Add device). It appears under **Phone audio**; switch on **Hear … in my buds**. After *Connecting to the phone…* it says *Playing phone audio*, and whatever plays on the phone now plays in the buds, along with the laptop. |
+| <img src="docs/media/settings.png" width="300" alt="Hotkey target and settings"> | **5. Make switching one keystroke.** Mark your buds as **Hotkey target**, and from then on `Ctrl+Alt+B` connects or releases them from anywhere. Below that, choose auto-reconnect, start with Windows, and the key combination. |
 
 <p align="center"><img src="docs/media/light-dark.png" width="560" alt="Light and dark theme"><br><sub>Light and dark follow the system theme. On Windows 11 the window also gets the Mica backdrop, which this Linux recording can't show.</sub></p>
 
@@ -133,16 +141,19 @@ The reasoning behind every choice, including what is impossible, is in [docs/FEA
 
 | Step | Status |
 |---|---|
-| Device list, connect/disconnect, tray, hotkey, auto-reconnect, start with Windows | built, waiting on the [hardware check](docs/HARDWARE_TESTING.md) |
+| Device list, connect/disconnect, tray, hotkey, auto-reconnect, start with Windows | built; device listing confirmed on real hardware, switching awaiting the [hardware check](docs/HARDWARE_TESTING.md) |
+| Bridge mode: phone audio through the laptop over Bluetooth | built, awaiting the [hardware check](docs/HARDWARE_TESTING.md) |
 | Final UI from the reference design | waiting on the design |
-| Phone audio to the laptop over Bluetooth (the laptop acts as a speaker) | next |
 | Phone audio over USB or Wi-Fi ADB (bundled scrcpy, audio only) | planned |
 | Audio sources panel with per-source volume and a latency indicator | planned |
 | Priority and ducking between laptop and phone audio | planned |
 
 ## Honest notes
 
-- **Not tested on real buds yet.** It builds, lints clean and passes every test on Linux and Windows in CI, and it runs end to end in demo mode. The first real-hardware run is the next step, and this README will say what it found.
+- **Only partly tested on real hardware.** On a real Windows 11 laptop BudsBridge lists the paired buds and headsets correctly. Switching and bridge mode build, lint clean, pass every test in CI on Linux and Windows and run end to end in demo mode; their run on real buds and a real phone is the next step, and this README will say what it found.
+- **Bridge mode is "dual connectivity" through the laptop, not in the buds.** The buds still hold one link, to the laptop. You hear the phone only while the laptop is on and in range; away from it, hand the buds to the phone.
+- **Phone audio arrives a little late**, roughly 0.2–0.4 s, because it makes two Bluetooth hops. Fine for music and podcasts; lip-sync is off if you watch a video on the phone's own screen.
+- **Two Bluetooth audio streams at once can stutter on some laptops**, because one radio carries both. Item B3 of the [hardware checklist](docs/HARDWARE_TESTING.md) checks yours.
 - **No software multipoint.** Non-multipoint buds hold one device at a time. BudsBridge makes the hand-over quick, but it can't make them talk to two at once.
 - **Busy buds may ignore the laptop.** While the buds are connected to the phone, many models ignore the laptop until the phone lets go, and others jump to the laptop. Which one yours do is item S2 of the [hardware checklist](docs/HARDWARE_TESTING.md).
 - **It depends on the Bluetooth driver.** Connecting needs a driver that implements `KSPROPSETID_BtAudio`. The Microsoft in-box stack is expected to, but some vendor stacks may not. BudsBridge shows that as an error instead of failing silently.
@@ -151,8 +162,14 @@ The reasoning behind every choice, including what is impossible, is in [docs/FEA
 
 ## FAQ
 
+**Is this real dual connectivity?**
+For your ears, yes: phone and laptop play in the same buds at the same time, with no switching. Technically the buds connect only to the laptop, and the phone's sound reaches them through the laptop. True two-link multipoint has to be built into the buds' firmware, which no app can add.
+
 **Do I need to install anything on my phone?**
-No. For switching, the phone only needs Bluetooth. The phone-audio bridge planned next also starts without a phone app, because the laptop can act as a Bluetooth speaker.
+No. The phone only needs Bluetooth and to be paired with the laptop once; the laptop acts as a Bluetooth speaker for it.
+
+**What about phone calls?**
+Microsoft's Phone Link (built into Windows 11) can take your phone's calls on the laptop, and the laptop plays them in the buds and uses their mic. Call audio uses Bluetooth's hands-free mode, which sounds lower quality than music.
 
 **My buds support multipoint. Do I need this?**
 Probably not: multipoint buds already stay connected to both. BudsBridge is for the many that don't.
@@ -168,7 +185,7 @@ The `.exe` isn't code-signed, because a certificate costs money. SmartScreen sho
 
 ## How it's built
 
-Rust and [Tauri 2](https://tauri.app), with a React 19 + TypeScript UI. Windows APIs (Core Audio, kernel streaming, COM) come through Microsoft's [`windows`](https://github.com/microsoft/windows-rs) crate. The logic is OS-independent and tested with an in-memory backend: 44 Rust tests for the state machine, reconnect policy, settings and runtime, more for endpoint grouping and the tray labels, and 16 Vitest tests for the UI. CI runs rustfmt, clippy (warnings are errors) and all tests on Linux and Windows, builds the installer, and a tag publishes a release.
+Rust and [Tauri 2](https://tauri.app), with a React 19 + TypeScript UI. Windows APIs (Core Audio, kernel streaming, COM) come through Microsoft's [`windows`](https://github.com/microsoft/windows-rs) crate. Bridge mode uses Windows' own `AudioPlaybackConnection`, which turns the laptop into a Bluetooth speaker for a paired phone. The logic is OS-independent and tested with in-memory backends: 57 Rust tests for the switching and bridge state machines, reconnect policies, settings and runtimes, more for endpoint naming and grouping and the tray labels, and 23 Vitest tests for the UI. CI runs rustfmt, clippy (warnings are errors) and all tests on Linux and Windows, builds the installer, and a tag publishes a release.
 
 The demo and screenshots above are recorded by [`scripts/record-demo.sh`](scripts/record-demo.sh). It starts the app in demo mode on a virtual display, clicks through the flow with `xdotool`, and captures it with `ffmpeg`, so every run of the script produces the same media.
 

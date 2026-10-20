@@ -44,7 +44,27 @@ cargo run -p budsbridge-win --example bt-audio -- list
 | A9 | Turn on **Start with Windows**, sign out and in | BudsBridge starts in the tray, window hidden |
 | A10 | Windows 11 light and dark mode | Mica backdrop visible; text readable in both themes |
 
-## 3. Results
+## 3. Bridge mode: phone audio through the laptop
+
+Pair the phone with the laptop once: Windows **Settings → Bluetooth & devices → Add device →
+Bluetooth**, pick the phone, confirm the code on both. (If you use Phone Link, it may already be
+paired.) Keep the buds connected to the laptop.
+
+| # | Check | Expected |
+|---|-------|----------|
+| B1 | Open BudsBridge | The phone appears under **Phone audio**, switched off |
+| B2 | Switch on **Hear … in my buds** | *Connecting to the phone…* then *Playing phone audio*. On the phone, the laptop shows as a connected audio device |
+| B3 | Play music on the phone **and** a YouTube video on the laptop | Both play in the buds at once. Note any stutter or dropouts |
+| B4 | Clap or tap on the phone's screen while a video plays on it | Rough delay between the phone and the buds (expect 0.2–0.4 s) |
+| B5 | Turn the phone's Bluetooth off for 30 s, then on | *Waiting for the phone (retrying)*, then back to *Playing* within about a minute |
+| B6 | Quit BudsBridge from the tray and open it again | Phone audio comes back on by itself |
+| B7 | Switch it off | The phone goes back to playing on its own speaker |
+| B8 | (Optional) Call the phone with Phone Link running on the laptop | The call can be answered on the laptop and heard in the buds |
+
+If B2 stays on *Waiting*, open the phone's Bluetooth settings, tap the laptop, and make sure
+**Media audio** is allowed for it.
+
+## 4. Results
 
 | Item | Value |
 |------|-------|
@@ -55,3 +75,7 @@ cargo run -p budsbridge-win --example bt-audio -- list
 | S1c connect time | |
 | S2 behaviour (ignore / takeover) | |
 | A1–A10 failures (number + what happened) | |
+| Phone model / Android version | |
+| B3: both at once, any stutter? | |
+| B4: rough delay | |
+| B1–B8 failures (number + what happened) | |

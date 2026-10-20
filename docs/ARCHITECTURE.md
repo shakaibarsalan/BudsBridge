@@ -146,10 +146,10 @@ Each milestone is a series of small, conventional commits (`feat:`, `fix:`,
 |-----------|-------|-----------|--------|
 | **M0** Scaffold | Workspace, Tauri app skeleton, CI, lint/format | CI is green on `windows-latest` | ✅ |
 | **M1** Core | Device model, state machine, reconnect policy, settings | Unit tests cover all state transitions | ✅ |
-| **M2** Windows backend | Enumerate paired audio devices, group endpoints by container, KS connect/disconnect, status events | Hardware spikes S1–S2 pass on your laptop | 🧪 code done, awaiting [hardware check](HARDWARE_TESTING.md) |
+| **M2** Windows backend | Enumerate paired audio devices, group endpoints by container, KS connect/disconnect, status events | Hardware spikes S1–S2 pass on your laptop | 🧪 listing confirmed on real hardware; connect/disconnect awaiting [hardware check](HARDWARE_TESTING.md) |
 | **M3** MVP app | Tray icon with live status, device list, one-click connect/disconnect, global hotkeys, auto-reconnect, start with Windows | Manual checklist passes | 🧪 code done, awaiting [hardware check](HARDWARE_TESTING.md) |
 | **M4** UI | Implement the reference design (Mica, dark/light) | Matches your screenshots | ⛔ blocked until screenshots arrive |
-| **P2a** Bridge: Bluetooth | `AudioPlaybackConnection` source: the phone streams to the laptop and is heard on the earbuds | Spike S3 is acceptable | ⏳ |
+| **P2a** Bridge: Bluetooth | `AudioPlaybackConnection` source: the phone streams to the laptop and is heard on the earbuds | Spike S3 is acceptable | 🧪 code done (`core::bridge`, `win::phone`), awaiting [hardware check](HARDWARE_TESTING.md) |
 | **P2b** Bridge: scrcpy | Bundled scrcpy/adb sidecar, audio-only, USB + Wi-Fi ADB | Spike S4 passes | ⏳ |
 | **P2c** Bridge UI | Sources panel, per-source volume, latency indicator | — | ⏳ |
 | **P3** Smart rules | Priority/ducking in hub mode, best-effort hand-over, optional companion app | Rules unit-tested; manual test | ⏳ |
