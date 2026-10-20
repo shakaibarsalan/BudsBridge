@@ -4,6 +4,7 @@ import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 import type { AppInfo, DeviceView, Settings } from "./types";
 
 export const DEVICES_CHANGED = "devices-changed";
+export const SETTINGS_CHANGED = "settings-changed";
 
 export const api = {
   appInfo: () => invoke<AppInfo>("app_info"),
@@ -15,4 +16,7 @@ export const api = {
   updateSettings: (settings: Settings) => invoke<AppInfo>("update_settings", { settings }),
   onDevicesChanged: (handler: (devices: DeviceView[]) => void): Promise<UnlistenFn> =>
     listen<DeviceView[]>(DEVICES_CHANGED, (event) => handler(event.payload)),
+  /** Fires when settings change elsewhere, e.g. from the tray menu. */
+  onSettingsChanged: (handler: (settings: Settings) => void): Promise<UnlistenFn> =>
+    listen<Settings>(SETTINGS_CHANGED, (event) => handler(event.payload)),
 };

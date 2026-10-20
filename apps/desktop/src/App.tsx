@@ -17,6 +17,8 @@ export function App() {
   useEffect(() => {
     api.appInfo().then(setInfo).catch((err: unknown) => setActionError(String(err)));
     api.getSettings().then(setSettings).catch((err: unknown) => setActionError(String(err)));
+    const unlisten = api.onSettingsChanged(setSettings);
+    return () => void unlisten.then((stop) => stop());
   }, []);
 
   useEffect(() => {

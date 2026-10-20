@@ -15,6 +15,7 @@ vi.mock("./lib/api", () => ({
     getSettings: vi.fn(),
     updateSettings: vi.fn(),
     onDevicesChanged: vi.fn(),
+    onSettingsChanged: vi.fn(),
   },
 }));
 
@@ -42,6 +43,7 @@ const buds: DeviceView = {
 };
 
 let pushDevices: (devices: DeviceView[]) => void = () => {};
+let pushSettings: (settings: Settings) => void = () => {};
 
 beforeEach(() => {
   mocked.appInfo.mockResolvedValue(info);
@@ -52,6 +54,10 @@ beforeEach(() => {
   mocked.updateSettings.mockImplementation(async () => info);
   mocked.onDevicesChanged.mockImplementation(async (handler) => {
     pushDevices = handler;
+    return () => {};
+  });
+  mocked.onSettingsChanged.mockImplementation(async (handler) => {
+    pushSettings = handler;
     return () => {};
   });
 });
@@ -113,6 +119,14 @@ describe("App", () => {
     expect(mocked.updateSettings).toHaveBeenLastCalledWith(
       expect.objectContaining({ preferredDevice: "buds" }),
     );
+  });
+
+  it("follows settings changed from the tray", async () => {
+    render(<App />);
+    const checkbox = await screen.findByRole("checkbox", { name: /Auto-reconnect/ });
+    expect(checkbox).toBeChecked();
+    act(() => pushSettings({ ...settings, autoReconnect: false }));
+    expect(checkbox).not.toBeChecked();
   });
 
   it("reports failed requests", async () => {
