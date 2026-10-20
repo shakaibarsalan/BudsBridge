@@ -5,6 +5,7 @@ use std::thread;
 use std::time::Duration;
 
 use crate::backend::{BackendError, ChangeNotifier, DeviceBackend, Watch};
+use crate::bridge::{AudioSource, SourceBackend};
 use crate::controller::Action;
 use crate::device::{AudioDevice, AudioProfile, DeviceId};
 
@@ -175,6 +176,107 @@ impl DeviceBackend for FakeBackend {
     fn watch(&self, notify: ChangeNotifier) -> Result<Watch, BackendError> {
         *lock(&self.inner.notifier) = Some(notify);
         Ok(Watch::new(WatchGuard(Arc::clone(&self.inner))))
+    }
+}
+
+/// In-memory [`SourceBackend`]: phones that can stream to the laptop.
+#[derive(Clone)]
+pub struct FakeSourceBackend {
+    sources: Arc<Mutex<Vec<AudioSource>>>,
+    notifier: Arc<Mutex<Option<ChangeNotifier>>>,
+    behavior: Arc<Mutex<FakeBehavior>>,
+    latency: Duration,
+}
+
+impl FakeSourceBackend {
+    pub fn new(sources: Vec<AudioSource>) -> Self {
+        Self {
+            sources: Arc::new(Mutex::new(sources)),
+            notifier: Arc::new(Mutex::new(None)),
+            behavior: Arc::new(Mutex::new(FakeBehavior::Succeed)),
+            latency: Duration::ZERO,
+        }
+    }
+
+    /// A clearly fictional phone for demo mode.
+    pub fn demo() -> Self {
+        Self::new(vec![AudioSource::new("demo-phone", "Demo Phone", false)])
+            .with_latency(Duration::from_millis(1_500))
+    }
+
+    pub fn with_latency(mut self, latency: Duration) -> Self {
+        self.latency = latency;
+        self
+    }
+
+    pub fn set_behavior(&self, behavior: FakeBehavior) {
+        *lock(&self.behavior) = behavior;
+    }
+
+    pub fn is_streaming(&self, id: &DeviceId) -> bool {
+        lock(&self.sources)
+            .iter()
+            .any(|source| &source.id == id && source.streaming)
+    }
+
+    pub fn is_watched(&self) -> bool {
+        lock(&self.notifier).is_some()
+    }
+
+    fn set_streaming(&self, id: &DeviceId, streaming: bool) -> Result<(), BackendError> {
+        {
+            let mut sources = lock(&self.sources);
+            let source = sources
+                .iter_mut()
+                .find(|source| &source.id == id)
+                .ok_or_else(|| BackendError::NotFound(id.clone()))?;
+            source.streaming = streaming;
+        }
+        let notifier = lock(&self.notifier).clone();
+        if let Some(notifier) = notifier {
+            notifier();
+        }
+        Ok(())
+    }
+}
+
+struct SourceWatchGuard(Arc<Mutex<Option<ChangeNotifier>>>);
+
+impl Drop for SourceWatchGuard {
+    fn drop(&mut self) {
+        *lock(&self.0) = None;
+    }
+}
+
+impl SourceBackend for FakeSourceBackend {
+    fn name(&self) -> &'static str {
+        "demo"
+    }
+
+    fn list_sources(&self) -> Result<Vec<AudioSource>, BackendError> {
+        Ok(lock(&self.sources).clone())
+    }
+
+    fn open(&self, id: &DeviceId) -> Result<(), BackendError> {
+        match *lock(&self.behavior) {
+            FakeBehavior::Reject => {
+                return Err(BackendError::Other("the phone didn't answer".into()));
+            }
+            FakeBehavior::Ignore => return Ok(()),
+            FakeBehavior::Succeed => {}
+        }
+        // Opening blocks, like the real Bluetooth handshake.
+        thread::sleep(self.latency);
+        self.set_streaming(id, true)
+    }
+
+    fn close(&self, id: &DeviceId) -> Result<(), BackendError> {
+        self.set_streaming(id, false)
+    }
+
+    fn watch(&self, notify: ChangeNotifier) -> Result<Watch, BackendError> {
+        *lock(&self.notifier) = Some(notify);
+        Ok(Watch::new(SourceWatchGuard(Arc::clone(&self.notifier))))
     }
 }
 

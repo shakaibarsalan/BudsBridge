@@ -32,6 +32,8 @@ pub struct Settings {
     /// Global shortcut, e.g. `"Ctrl+Alt+B"`. `None` disables it.
     pub toggle_hotkey: Option<String>,
     pub start_with_windows: bool,
+    /// Phones whose audio is bridged through the laptop (bridge mode).
+    pub bridged_phones: Vec<DeviceId>,
 }
 
 impl Default for Settings {
@@ -44,6 +46,7 @@ impl Default for Settings {
             preferred_device: None,
             toggle_hotkey: Some("Ctrl+Alt+B".to_owned()),
             start_with_windows: false,
+            bridged_phones: Vec::new(),
         }
     }
 }
@@ -87,6 +90,10 @@ impl Settings {
         self.preferred_device = self
             .preferred_device
             .filter(|id| !id.as_str().trim().is_empty());
+        self.bridged_phones
+            .retain(|id| !id.as_str().trim().is_empty());
+        self.bridged_phones.sort();
+        self.bridged_phones.dedup();
         self
     }
 
@@ -120,6 +127,7 @@ mod tests {
             preferred_device: Some(DeviceId::new("{1234}")),
             toggle_hotkey: Some("Ctrl+Shift+F9".into()),
             start_with_windows: true,
+            bridged_phones: vec![DeviceId::new("phone-a")],
             ..Settings::default()
         };
         settings.save(&path).unwrap();
@@ -155,9 +163,19 @@ mod tests {
             connect_timeout_ms: 1,
             toggle_hotkey: Some("   ".into()),
             preferred_device: Some(DeviceId::new(" ")),
+            bridged_phones: vec![
+                DeviceId::new("b"),
+                DeviceId::new(""),
+                DeviceId::new("a"),
+                DeviceId::new("b"),
+            ],
             ..Settings::default()
         }
         .sanitized();
+        assert_eq!(
+            settings.bridged_phones,
+            vec![DeviceId::new("a"), DeviceId::new("b")]
+        );
         assert_eq!(settings.version, Settings::CURRENT_VERSION);
         assert_eq!(
             settings.connect_timeout_ms,
