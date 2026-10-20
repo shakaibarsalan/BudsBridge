@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { bridgeStatusLabel, isEngaged, profileLabel, statusLabel } from "./format";
+import { bridgeStatusLabel, isEngaged, profileLabel, shortName, statusLabel } from "./format";
 import type { DeviceView } from "./types";
 
 const base: DeviceView = {
@@ -48,5 +48,13 @@ describe("bridgeStatusLabel", () => {
     expect(bridgeStatusLabel("connecting")).toBe("Connecting to the phone…");
     expect(bridgeStatusLabel("streaming")).toBe("Playing phone audio");
     expect(bridgeStatusLabel("waiting")).toBe("Waiting for the phone (retrying)");
+  });
+});
+
+describe("shortName", () => {
+  it("keeps short names and trims long ones", () => {
+    expect(shortName("TWS")).toBe("TWS");
+    expect(shortName("Demo Headphones")).toBe("Demo Headpho…");
+    expect(shortName("Demo Headphones", 20)).toBe("Demo Headphones");
   });
 });
