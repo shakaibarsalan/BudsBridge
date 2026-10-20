@@ -42,3 +42,8 @@ const BRIDGE_LABELS: Record<BridgeState, string> = {
 export function bridgeStatusLabel(state: BridgeState): string {
   return BRIDGE_LABELS[state];
 }
+
+/** Shortens a device name to fit a fixed-width label. */
+export function shortName(name: string, max = 13): string {
+  return name.length <= max ? name : `${name.slice(0, max - 1).trimEnd()}…`;
+}

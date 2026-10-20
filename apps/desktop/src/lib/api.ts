@@ -23,6 +23,12 @@ export const api = {
     invoke<void>("set_source_enabled", { id, enabled }),
   onSourcesChanged: (handler: (sources: SourceView[]) => void): Promise<UnlistenFn> =>
     listen<SourceView[]>(SOURCES_CHANGED, (event) => handler(event.payload)),
+  /** Opens the full window (settings) and closes the dock. */
+  openSettings: () => invoke<void>("open_settings"),
+  quitApp: () => invoke<void>("quit_app"),
+  /** Tells the dock window how tall its content is. */
+  dockResize: (height: number) => invoke<void>("dock_resize", { height }),
+  hideDock: () => invoke<void>("hide_dock"),
   /** Fires when settings change elsewhere, e.g. from the tray menu. */
   onSettingsChanged: (handler: (settings: Settings) => void): Promise<UnlistenFn> =>
     listen<Settings>(SETTINGS_CHANGED, (event) => handler(event.payload)),

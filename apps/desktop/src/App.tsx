@@ -1,61 +1,21 @@
-import { useCallback, useEffect, useState } from "react";
-
 import { DeviceCard } from "./components/DeviceCard";
 import { PhoneAudioPanel } from "./components/PhoneAudioPanel";
 import { SettingsPanel } from "./components/SettingsPanel";
-import { api } from "./lib/api";
-import { isEngaged } from "./lib/format";
-import type { AppInfo, DeviceView, Settings, SourceView } from "./lib/types";
-import { useLiveList } from "./lib/useLiveList";
+import { useBudsBridge } from "./lib/useBudsBridge";
 
-// Functional MVP layout. The final look follows the reference design.
+/** The full window: every device, every phone and all settings. */
 export function App() {
-  const { items: devices, error: loadError } = useLiveList(api.listDevices, api.onDevicesChanged);
-  const { items: phones } = useLiveList(api.listSources, api.onSourcesChanged);
-  const [settings, setSettings] = useState<Settings | null>(null);
-  const [info, setInfo] = useState<AppInfo | null>(null);
-  const [actionError, setActionError] = useState<string | null>(null);
-
-  useEffect(() => {
-    api.appInfo().then(setInfo).catch((err: unknown) => setActionError(String(err)));
-    api.getSettings().then(setSettings).catch((err: unknown) => setActionError(String(err)));
-    const unlisten = api.onSettingsChanged(setSettings);
-    return () => void unlisten.then((stop) => stop());
-  }, []);
-
-  useEffect(() => {
-    document.documentElement.dataset.backdrop = info?.mica ? "mica" : "solid";
-  }, [info?.mica]);
-
-  const saveSettings = useCallback(async (next: Settings) => {
-    setActionError(null);
-    try {
-      setInfo(await api.updateSettings(next));
-      setSettings(next);
-    } catch (err) {
-      setActionError(String(err));
-    }
-  }, []);
-
-  const toggle = useCallback((device: DeviceView) => {
-    setActionError(null);
-    const request = isEngaged(device.state) ? api.disconnect(device.id) : api.connect(device.id);
-    request.catch((err: unknown) => setActionError(String(err)));
-  }, []);
-
-  const togglePhone = useCallback((phone: SourceView, enabled: boolean) => {
-    setActionError(null);
-    api.setSourceEnabled(phone.id, enabled).catch((err: unknown) => setActionError(String(err)));
-  }, []);
-
-  const makeHotkeyTarget = useCallback(
-    (id: string) => {
-      if (settings) void saveSettings({ ...settings, preferredDevice: id });
-    },
-    [settings, saveSettings],
-  );
-
-  const error = actionError ?? loadError;
+  const {
+    devices,
+    phones,
+    settings,
+    info,
+    error,
+    saveSettings,
+    toggleDevice: toggle,
+    togglePhone,
+    makeHotkeyTarget,
+  } = useBudsBridge();
 
   return (
     <div className="app">
