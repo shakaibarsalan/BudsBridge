@@ -43,6 +43,28 @@ pub struct DeviceGroup {
     pub filter_ids: Vec<String>,
 }
 
+/// The device's own name from an endpoint's interface name. Windows calls the
+/// hands-free interface "<device> Hands-Free" (older builds: "Hands-Free AG
+/// Audio") and some stereo ones "<device> Stereo"; users know it as "<device>".
+pub fn display_name(raw: &str) -> String {
+    const SUFFIXES: [&str; 4] = [
+        " Hands-Free AG Audio",
+        " Hands-Free AG",
+        " Hands-Free",
+        " Stereo",
+    ];
+    let name = raw.trim();
+    for suffix in SUFFIXES {
+        let Some(cut) = name.len().checked_sub(suffix.len()) else {
+            continue;
+        };
+        if cut > 0 && name.is_char_boundary(cut) && name[cut..].eq_ignore_ascii_case(suffix) {
+            return name[..cut].trim_end().to_owned();
+        }
+    }
+    name.to_owned()
+}
+
 /// Groups endpoints by container, so "Headphones" (A2DP) and "Headset"
 /// (HFP) of the same buds become one device.
 pub fn group_endpoints(endpoints: impl IntoIterator<Item = EndpointInfo>) -> Vec<DeviceGroup> {
@@ -67,8 +89,12 @@ pub fn group_endpoints(endpoints: impl IntoIterator<Item = EndpointInfo>) -> Vec
             }
         };
         let group = &mut groups[index];
-        if group.device.name.is_empty() {
-            group.device.name = endpoint.name;
+        // The stereo endpoint carries the plainest name, so it wins.
+        let name = display_name(&endpoint.name);
+        if !name.is_empty()
+            && (group.device.name.is_empty() || endpoint.profile == AudioProfile::Stereo)
+        {
+            group.device.name = name;
         }
         group.device.connected |= endpoint.active;
         if !group.device.profiles.contains(&endpoint.profile) {
@@ -149,6 +175,31 @@ mod tests {
         assert_eq!(buds.filter_ids, vec![A2DP.to_owned(), HFP.to_owned()]);
 
         assert!(!groups[1].device.connected);
+    }
+
+    #[test]
+    fn display_names_drop_profile_suffixes() {
+        assert_eq!(display_name("IGNITE Hands-Free"), "IGNITE");
+        assert_eq!(display_name("Wave Pro Hands-Free AG Audio"), "Wave Pro");
+        assert_eq!(display_name("Buds hands-free ag"), "Buds");
+        assert_eq!(display_name("Speaker Stereo"), "Speaker");
+        assert_eq!(display_name("  TWS  "), "TWS");
+        // A name that is only the suffix stays as it is.
+        assert_eq!(display_name("Hands-Free"), "Hands-Free");
+        assert_eq!(display_name("Écouteurs"), "Écouteurs");
+    }
+
+    #[test]
+    fn stereo_endpoint_names_the_device() {
+        let groups = group_endpoints([
+            endpoint("{W}", "Wave Pro Hands-Free", false, HFP),
+            endpoint("{W}", "Wave Pro", false, A2DP),
+        ]);
+        assert_eq!(groups[0].device.name, "Wave Pro");
+
+        // Hands-free only (the stereo endpoint is absent while disconnected).
+        let groups = group_endpoints([endpoint("{I}", "IGNITE Hands-Free", false, HFP)]);
+        assert_eq!(groups[0].device.name, "IGNITE");
     }
 
     #[test]
