@@ -33,6 +33,12 @@ describe("PhoneAudioPanel", () => {
     expect(screen.getByRole("listitem", { name: "Pixel" })).toHaveAttribute("aria-busy", "true");
   });
 
+  it("explains why Windows shows the phone as not connected", () => {
+    const off: SourceView = { ...phone, enabled: false, state: "off", lastError: null };
+    render(<PhoneAudioPanel phones={[off]} onToggle={vi.fn()} />);
+    expect(screen.getByText(/until you switch it on here/)).toBeInTheDocument();
+  });
+
   it("shows a loading state", () => {
     render(<PhoneAudioPanel phones={null} onToggle={vi.fn()} />);
     expect(screen.getByText("Looking for paired phones…")).toBeInTheDocument();

@@ -22,6 +22,10 @@ export function PhoneAudioPanel({ phones, onToggle }: PhoneAudioPanelProps) {
         Hear your phone through the laptop. The buds stay connected to the laptop and play both, so
         there is nothing to switch.
       </p>
+      <p className="muted small">
+        Windows shows a paired phone as “Not connected” until you switch it on here. BudsBridge then
+        connects it and keeps it connected.
+      </p>
 
       {phones === null ? (
         <p className="muted">Looking for paired phones…</p>
