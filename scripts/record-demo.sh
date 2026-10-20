@@ -68,7 +68,7 @@ sleep 1.5
 click 86 196   # Demo Buds Pro: Connect
 sleep 0.4; shot connecting
 sleep 2.2; shot connected
-click 52 697   # Phone audio: hear Demo Phone in the buds as well
+click 52 755   # Phone audio: hear Demo Phone in the buds as well
 sleep 0.5; shot phone-connecting
 sleep 2.4; shot phone
 click 286 196  # Demo Buds Pro becomes the hotkey target
