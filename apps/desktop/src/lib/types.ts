@@ -1,0 +1,40 @@
+// Mirrors the serde types in crates/budsbridge-core and src-tauri.
+
+export type ConnectionState = "disconnected" | "connecting" | "connected" | "disconnecting";
+
+export type AudioProfile = "stereo" | "handsFree" | "leAudio" | "unknown";
+
+export interface DeviceView {
+  id: string;
+  name: string;
+  profiles: AudioProfile[];
+  state: ConnectionState;
+  reconnectAttempt: number | null;
+  lastError: string | null;
+}
+
+export interface ReconnectPolicy {
+  initialDelayMs: number;
+  maxDelayMs: number;
+  maxAttempts: number;
+}
+
+export interface Settings {
+  version: number;
+  autoReconnect: boolean;
+  reconnect: ReconnectPolicy;
+  connectTimeoutMs: number;
+  preferredDevice: string | null;
+  toggleHotkey: string | null;
+  startWithWindows: boolean;
+}
+
+export interface AppInfo {
+  /** "windows" for real devices, "demo" for the simulated backend. */
+  backend: string;
+  version: string;
+  /** Window uses the Windows 11 Mica backdrop, so the page must be transparent. */
+  mica: boolean;
+  /** Problems applying settings, e.g. a hotkey already taken by another app. */
+  warnings: string[];
+}
