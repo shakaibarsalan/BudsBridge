@@ -141,8 +141,9 @@ impl Worker {
                 Ok(Request::Shutdown) | Err(RecvTimeoutError::Disconnected) => break,
                 Ok(Request::Refresh) => self.refresh(),
                 Ok(Request::SetEnabled(id, enabled)) => {
+                    // Close first, so "Off" is only shown once the stream is gone.
+                    // Opening happens in `step`, which shows "Connecting…" first.
                     let actions = self.controller.set_enabled(&id, enabled, Instant::now());
-                    self.publish();
                     self.execute(actions);
                     self.refresh();
                 }
