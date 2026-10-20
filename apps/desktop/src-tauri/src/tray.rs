@@ -10,7 +10,7 @@ use crate::labels::{menu_label, phone_menu_label, tooltip};
 use crate::state::AppState;
 use crate::system;
 
-const TRAY_ID: &str = "main";
+pub const TRAY_ID: &str = "main";
 const DEVICE_PREFIX: &str = "device:";
 const PHONE_PREFIX: &str = "phone:";
 const AUTO_RECONNECT_ID: &str = "auto-reconnect";
@@ -38,10 +38,11 @@ pub fn create(app: &AppHandle) -> tauri::Result<()> {
             if let TrayIconEvent::Click {
                 button: MouseButton::Left,
                 button_state: MouseButtonState::Up,
+                rect,
                 ..
             } = event
             {
-                crate::show_main_window(tray.app_handle());
+                crate::dock::toggle(tray.app_handle(), crate::dock::to_px(&rect, 1.0));
             }
         })
         .build(app)?;
@@ -133,7 +134,7 @@ fn build_menu(
     menu.append(&MenuItem::with_id(
         app,
         OPEN_ID,
-        "Open BudsBridge",
+        "Settings…",
         true,
         None::<&str>,
     )?)?;

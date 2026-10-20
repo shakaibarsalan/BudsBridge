@@ -48,3 +48,26 @@ pub fn list_sources(state: State<'_, AppState>) -> Vec<SourceView> {
 pub fn set_source_enabled(app: AppHandle, id: String, enabled: bool) -> Result<(), String> {
     system::set_phone_bridged(&app, DeviceId::new(id), enabled)
 }
+
+/// Opens the full window (settings) and closes the dock.
+#[tauri::command]
+pub fn open_settings(app: AppHandle) {
+    crate::show_main_window(&app);
+}
+
+#[tauri::command]
+pub fn quit_app(app: AppHandle, state: State<'_, AppState>) {
+    state.set_quitting();
+    app.exit(0);
+}
+
+/// The dock page reports its content height so the window fits it.
+#[tauri::command]
+pub fn dock_resize(app: AppHandle, height: f64) -> Result<(), String> {
+    crate::dock::resize(&app, height).map_err(|err| err.to_string())
+}
+
+#[tauri::command]
+pub fn hide_dock(app: AppHandle) {
+    crate::dock::hide(&app);
+}

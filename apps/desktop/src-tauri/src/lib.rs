@@ -3,6 +3,7 @@
 //! bridge mode).
 
 mod commands;
+mod dock;
 mod hotkey;
 mod labels;
 mod state;
@@ -28,7 +29,7 @@ pub const DEMO_ENV: &str = "BUDSBRIDGE_DEMO";
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            show_main_window(app)
+            dock::show(app)
         }))
         .plugin(
             tauri_plugin_log::Builder::new()
@@ -49,23 +50,31 @@ pub fn run() {
             commands::update_settings,
             commands::list_sources,
             commands::set_source_enabled,
+            commands::open_settings,
+            commands::quit_app,
+            commands::dock_resize,
+            commands::hide_dock,
         ])
         .setup(|app| {
             setup(app.handle())?;
             Ok(())
         })
-        .on_window_event(|window, event| {
-            if let WindowEvent::CloseRequested { api, .. } = event {
-                // Closing the window keeps BudsBridge running in the tray.
+        .on_window_event(|window, event| match event {
+            WindowEvent::CloseRequested { api, .. } => {
+                // Closing a window keeps BudsBridge running in the tray.
                 let quitting = window
                     .app_handle()
                     .try_state::<AppState>()
                     .is_some_and(|state| state.is_quitting());
-                if window.label() == MAIN_WINDOW && !quitting {
+                if !quitting {
                     api.prevent_close();
                     let _ = window.hide();
                 }
             }
+            WindowEvent::Focused(false) if window.label() == dock::DOCK_WINDOW => {
+                dock::focus_lost(window.app_handle());
+            }
+            _ => {}
         })
         .run(tauri::generate_context!())
         .expect("error while running BudsBridge");
@@ -118,6 +127,11 @@ fn setup(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
         .set_warnings(system::apply(app, &settings));
     tray::create(app)?;
     create_main_window(app, mica)?;
+    dock::create(app, mica)?;
+    // Everyday control lives in the dock; the full window is for settings.
+    if !std::env::args().any(|arg| arg == MINIMIZED_ARG) {
+        dock::show(app);
+    }
     Ok(())
 }
 
@@ -148,14 +162,14 @@ fn supports_mica() -> bool {
     false
 }
 
+/// The full window, used for settings. It starts hidden.
 fn create_main_window(app: &AppHandle, mica: bool) -> tauri::Result<()> {
-    let minimized = std::env::args().any(|arg| arg == MINIMIZED_ARG);
     let builder = WebviewWindowBuilder::new(app, MAIN_WINDOW, WebviewUrl::default())
-        .title("BudsBridge")
-        .inner_size(420.0, 640.0)
-        .min_inner_size(360.0, 480.0)
+        .title("BudsBridge settings")
+        .inner_size(460.0, 720.0)
+        .min_inner_size(380.0, 520.0)
         .center()
-        .visible(!minimized);
+        .visible(false);
     let builder = if mica {
         use tauri::window::{Effect, EffectsBuilder};
         builder
@@ -169,6 +183,7 @@ fn create_main_window(app: &AppHandle, mica: bool) -> tauri::Result<()> {
 }
 
 pub fn show_main_window(app: &AppHandle) {
+    dock::hide(app);
     if let Some(window) = app.get_webview_window(MAIN_WINDOW) {
         let _ = window.unminimize();
         let _ = window.show();
