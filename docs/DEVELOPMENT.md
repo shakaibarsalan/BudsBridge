@@ -67,6 +67,23 @@ on a virtual display, clicks through the main flow and writes the GIF, MP4 and s
 `docs/media/`. Build first with `cd apps/desktop && pnpm tauri build --debug --no-bundle`.
 Re-run it whenever the UI changes.
 
+## Walkthrough video
+
+`scripts/video/make.sh` builds `docs/media/tutorial.mp4` (1080 x 1350, about 70 s). It needs the
+tools above plus `dbus-launch` and Python 3 with `kokoro-onnx`, `numpy`, `Pillow` and
+`python-xlib`, and Kokoro's model files (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) in
+`~/.cache/budsbridge-video`:
+
+1. `narrate.py` speaks each line and writes the clips and their lengths to `target/video/voice`.
+2. `record.py` runs the app in demo mode on a virtual display and drives one step per line,
+   starting each once the previous line has been spoken. It writes the recording and a timeline
+   of the pointer, clicks, rings, key badges and camera.
+3. `compose.py` scales the recording into the frame, zooming in on the dock, draws the taskbar,
+   the overlays and the subtitles, and adds the voice.
+
+To change what is said, edit `LINES` in `narrate.py`; to change what happens, edit the matching
+`step_…` function in `record.py`.
+
 ## Layout
 
 | Path | What |
@@ -75,5 +92,5 @@ Re-run it whenever the UI changes.
 | `crates/budsbridge-win` | Windows backend: Core Audio endpoints, `KSPROPSETID_BtAudio` connect/disconnect, notifications. `examples/bt-audio.rs` is a CLI for hardware checks. |
 | `apps/desktop/src-tauri` | Tauri shell: window, tray, global hotkey, autostart, commands. |
 | `apps/desktop/src` | React UI. |
-| `scripts/` | `record-demo.sh` for the README media. |
+| `scripts/` | `record-demo.sh` for the README media, `video/` for the walkthrough video. |
 | `docs/` | Feasibility, architecture, hardware checklist, release notes, media. |

@@ -20,6 +20,12 @@ A small dock for Windows 11 that opens from the tray. The buds stay connected to
 
 <sub>The dock, recorded in demo mode with simulated devices so it runs anywhere: the <b>Phone audio</b> tile brings the phone in (the green link, now <i>2 sources</i> in the buds), the <b>Buds</b> tile hands the buds back, <code>Ctrl+Alt+B</code> brings them back from anywhere, and <b>Devices</b> opens the full list in place. Also as <a href="docs/media/demo.mp4">MP4</a>.</sub>
 
+<br><br>
+
+<a href="docs/media/tutorial.mp4"><img src="docs/media/tutorial-poster.jpg" width="300" alt="Play the walkthrough video"></a>
+
+<sub><b><a href="docs/media/tutorial.mp4">Watch the 70-second walkthrough</a></b>, with voice-over and subtitles: the tray icon, the dock, phone audio, handing the buds over and back, and settings.</sub>
+
 </div>
 
 ---
@@ -188,9 +194,11 @@ The `.exe` isn't code-signed, because a certificate costs money. SmartScreen sho
 
 ## How it's built
 
-Rust and [Tauri 2](https://tauri.app), with a React 19 + TypeScript UI. Windows APIs (Core Audio, kernel streaming, COM) come through Microsoft's [`windows`](https://github.com/microsoft/windows-rs) crate. Bridge mode uses Windows' own `AudioPlaybackConnection`, which turns the laptop into a Bluetooth speaker for a paired phone. The dock's look follows the menu bar panel of [InverterBar](https://github.com/ahkamboh/inverterbar): monochrome surfaces, restrained accents for what is live, and a hero picture that is a pure function of the current state. The logic is OS-independent and tested with in-memory backends: 57 Rust tests for the switching and bridge state machines, reconnect policies, settings and runtimes, more for endpoint naming, dock placement on any taskbar edge and the tray labels, and 39 Vitest tests for the dock and the settings window. CI runs rustfmt, clippy (warnings are errors) and all tests on Linux and Windows, builds the installer, and a tag publishes a release.
+Rust and [Tauri 2](https://tauri.app), with a React 19 + TypeScript UI. Windows APIs (Core Audio, kernel streaming, COM) come through Microsoft's [`windows`](https://github.com/microsoft/windows-rs) crate. Bridge mode uses Windows' own `AudioPlaybackConnection`, which turns the laptop into a Bluetooth speaker for a paired phone. The dock's look follows the menu bar panel of [InverterBar](https://github.com/ahkamboh/inverterbar): monochrome surfaces, restrained accents for what is live, and a hero picture that is a pure function of the current state. The logic is OS-independent and tested with in-memory backends: 59 Rust tests for the switching and bridge state machines, reconnect policies, settings and runtimes, more for endpoint naming, phone matching, dock placement on any taskbar edge, the tray labels and the diagnostics report, and 45 Vitest tests for the dock and the settings window. CI runs rustfmt, clippy (warnings are errors) and all tests on Linux and Windows, builds the installer, and a tag publishes a release.
 
 The demo and screenshots above are recorded by [`scripts/record-demo.sh`](scripts/record-demo.sh). It starts the app in demo mode on a virtual display, clicks through the flow with `xdotool`, and captures it with `ffmpeg`, so every run of the script produces the same media.
+
+The walkthrough video is made the way [Ferry](https://github.com/ahkamboh/ferry)'s demo is: [`scripts/video/make.sh`](scripts/video/make.sh) speaks the lines in [`narrate.py`](scripts/video/narrate.py) with [Kokoro](https://github.com/thewh1teagle/kokoro-onnx), offline, then records the app in demo mode with every step held until its line has been spoken, so editing a line retimes the video. The pointer, the pulsing rings, the key badges, the taskbar and the subtitles are drawn on top by [`compose.py`](scripts/video/compose.py), not by BudsBridge.
 
 ```
 BudsBridge/
@@ -200,7 +208,9 @@ BudsBridge/
 ├── apps/desktop/
 │   ├── src/                 React UI and its tests
 │   └── src-tauri/           Tauri shell: window, tray, hotkey, autostart, commands
-├── scripts/record-demo.sh   records the README media in demo mode
+├── scripts/
+│   ├── record-demo.sh       records the README media in demo mode
+│   └── video/               the walkthrough video: voice, recording, composition
 ├── docs/                    feasibility study, architecture, hardware checklist, releases
 └── .github/workflows/       CI and release
 ```
