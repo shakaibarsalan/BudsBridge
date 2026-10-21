@@ -74,7 +74,7 @@ From the [latest release](https://github.com/shakaibarsalan/BudsBridge/releases/
 | `BudsBridge-<version>-windows-x64-setup.exe` | installer for your user only: Start menu entry and uninstaller, no admin prompt |
 | `SHA256SUMS.txt` | checksums for both |
 
-Opening a newer `BudsBridge.exe` while an older copy runs in the tray hands over to the new one.
+Opening a newer `BudsBridge.exe` while an older copy runs in the tray hands over to the new one (from 0.3.1 on; quit older copies from the tray first).
 
 **Nothing else needs to be installed.** Windows 11 already has the WebView2 runtime the window uses, and the phone needs no app for any of this. The only setup is pairing the buds with Windows once.
 
