@@ -11,7 +11,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 
 import { api } from "../../lib/api";
-import { focusDevice, focusPhone, headline, soundSources } from "../../lib/focus";
+import { focusDevice, focusPhone, headline, soundSources, sourcesLabel } from "../../lib/focus";
 import {
   UNAVAILABLE_HINT,
   bridgeStatusLabel,
@@ -82,14 +82,15 @@ export function Dock() {
   // Shown on the tile when Windows offers no phone but one is paired.
   const unavailable = unavailablePhones[0] ?? null;
   const sources = soundSources(device, phoneList);
-  const { title, detail } = headline(device, phone);
+  const { title, detail } = headline(device, phoneList);
+  const playing = phoneList.filter((item) => item.state === "streaming");
   const problem = error ?? device?.lastError ?? phone?.lastError ?? null;
   const demo = info?.backend === "demo";
 
   const subtitle = [
     demo ? "Demo" : null,
     device?.state === "connected" ? `${device.name} connected` : "No buds connected",
-    phone?.state === "streaming" ? `${phone.name} audio on` : null,
+    playing.length > 0 ? `${playing.map((item) => item.name).join(" + ")} audio on` : null,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -156,7 +157,7 @@ export function Dock() {
           <span className="count__unit">{sources === 1 ? "source" : "sources"}</span>
           <span className="count__label">in your buds</span>
           <span className="count__side">
-            {sources === 2 ? "phone + laptop" : sources === 1 ? "laptop" : "buds not here"}
+            {sourcesLabel(sources)}
           </span>
         </div>
 

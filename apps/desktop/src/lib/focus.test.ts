@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { focusDevice, focusPhone, headline, soundSources } from "./focus";
+import { focusDevice, focusPhone, headline, soundSources, sourcesLabel } from "./focus";
 import type { DeviceView, SourceView } from "./types";
 
 function device(id: string, state: DeviceView["state"] = "disconnected"): DeviceView {
@@ -55,25 +55,40 @@ describe("soundSources", () => {
 
 describe("headline", () => {
   it("covers every situation", () => {
-    expect(headline(null, null).title).toBe("No buds paired");
-    expect(headline(device("a", "connecting"), null).title).toBe("Connecting A…");
-    expect(headline(device("a", "disconnecting"), null).title).toBe("Releasing A…");
-    expect(headline(device("a"), null)).toEqual({
+    expect(headline(null, []).title).toBe("No buds paired");
+    expect(headline(device("a", "connecting"), []).title).toBe("Connecting A…");
+    expect(headline(device("a", "disconnecting"), []).title).toBe("Releasing A…");
+    expect(headline(device("a"), [])).toEqual({
       title: "Buds not on this laptop",
       detail: "A is free for your phone",
     });
-    expect(headline({ ...device("a"), reconnectAttempt: 2 }, null).detail).toBe(
+    expect(headline({ ...device("a"), reconnectAttempt: 2 }, []).detail).toBe(
       "Reconnecting A (attempt 2)",
     );
-    expect(headline(device("a", "connected"), phone("p", "streaming", true))).toEqual({
+    expect(headline(device("a", "connected"), [phone("p", "streaming", true)])).toEqual({
       title: "Hearing phone + laptop",
       detail: "A on this laptop · P playing through it",
     });
-    expect(headline(device("a", "connected"), phone("p", "waiting", true)).detail).toBe(
+    expect(headline(device("a", "connected"), [phone("p", "waiting", true)]).detail).toBe(
       "A connected · waiting for P",
     );
-    expect(headline(device("a", "connected"), phone("p")).detail).toBe(
+    expect(headline(device("a", "connected"), [phone("p")]).detail).toBe(
       "A connected · phone audio off",
     );
+    expect(
+      headline(device("a", "connected"), [phone("p", "streaming", true), phone("q", "streaming", true)]),
+    ).toEqual({
+      title: "Hearing 2 phones + laptop",
+      detail: "A on this laptop · P + Q playing through it",
+    });
+  });
+});
+
+describe("sourcesLabel", () => {
+  it("names what reaches the buds, for any number of phones", () => {
+    expect(sourcesLabel(0)).toBe("buds not here");
+    expect(sourcesLabel(1)).toBe("laptop");
+    expect(sourcesLabel(2)).toBe("phone + laptop");
+    expect(sourcesLabel(3)).toBe("2 phones + laptop");
   });
 });

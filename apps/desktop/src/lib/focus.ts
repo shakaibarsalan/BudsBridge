@@ -27,12 +27,20 @@ export function soundSources(device: DeviceView | null, phones: SourceView[]): n
   return 1 + phones.filter((phone) => phone.state === "streaming").length;
 }
 
+/** What the sources are, shown next to the count. */
+export function sourcesLabel(sources: number): string {
+  if (sources <= 0) return "buds not here";
+  if (sources === 1) return "laptop";
+  if (sources === 2) return "phone + laptop";
+  return `${sources - 1} phones + laptop`;
+}
+
 export interface Headline {
   title: string;
   detail: string;
 }
 
-export function headline(device: DeviceView | null, phone: SourceView | null): Headline {
+export function headline(device: DeviceView | null, phones: SourceView[]): Headline {
   if (!device) {
     return {
       title: "No buds paired",
@@ -55,12 +63,15 @@ export function headline(device: DeviceView | null, phone: SourceView | null): H
     case "connected":
       break;
   }
-  if (phone?.state === "streaming") {
+  const playing = phones.filter((item) => item.state === "streaming");
+  if (playing.length > 0) {
     return {
-      title: "Hearing phone + laptop",
-      detail: `${device.name} on this laptop · ${phone.name} playing through it`,
+      title:
+        playing.length === 1 ? "Hearing phone + laptop" : `Hearing ${playing.length} phones + laptop`,
+      detail: `${device.name} on this laptop · ${playing.map((item) => item.name).join(" + ")} playing through it`,
     };
   }
+  const phone = focusPhone(phones);
   if (phone && (phone.state === "connecting" || phone.state === "waiting")) {
     return { title: "Buds on this laptop", detail: `${device.name} connected · waiting for ${phone.name}` };
   }
