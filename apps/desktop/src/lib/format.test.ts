@@ -10,6 +10,7 @@ const base: DeviceView = {
   state: "disconnected",
   reconnectAttempt: null,
   lastError: null,
+  lastConnected: false,
 };
 
 describe("statusLabel", () => {

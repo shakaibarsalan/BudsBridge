@@ -4,7 +4,15 @@ import { focusDevice, focusPhone, headline, soundSources } from "./focus";
 import type { DeviceView, SourceView } from "./types";
 
 function device(id: string, state: DeviceView["state"] = "disconnected"): DeviceView {
-  return { id, name: id.toUpperCase(), profiles: ["stereo"], state, reconnectAttempt: null, lastError: null };
+  return {
+    id,
+    name: id.toUpperCase(),
+    profiles: ["stereo"],
+    state,
+    reconnectAttempt: null,
+    lastError: null,
+    lastConnected: false,
+  };
 }
 
 function phone(id: string, state: SourceView["state"] = "off", enabled = false): SourceView {
@@ -19,6 +27,12 @@ describe("focusDevice", () => {
     expect(focusDevice(list, null)?.id).toBe("b");
     expect(focusDevice([device("a"), device("b")], null)?.id).toBe("a");
     expect(focusDevice([], null)).toBeNull();
+  });
+
+  it("keeps the buds just released in focus", () => {
+    const released = { ...device("b"), lastConnected: true };
+    expect(focusDevice([device("a"), released], null)?.id).toBe("b");
+    expect(focusDevice([device("a", "connected"), released], null)?.id).toBe("a");
   });
 });
 

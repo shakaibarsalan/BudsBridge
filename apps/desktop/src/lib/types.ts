@@ -11,6 +11,8 @@ export interface DeviceView {
   state: ConnectionState;
   reconnectAttempt: number | null;
   lastError: string | null;
+  /** The device connected most recently; it may still be connected. */
+  lastConnected: boolean;
 }
 
 export type BridgeState = "off" | "connecting" | "streaming" | "waiting";

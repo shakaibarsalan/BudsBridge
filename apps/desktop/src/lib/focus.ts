@@ -3,12 +3,14 @@ import type { DeviceView, SourceView } from "./types";
 
 /**
  * The buds the dock's main controls act on: the hotkey target, else the
- * connected one, else the first. Mirrors `Controller::hotkey_target`.
+ * connected one, else the one connected most recently, else the first.
+ * Mirrors `Controller::hotkey_target`.
  */
 export function focusDevice(devices: DeviceView[], preferred: string | null): DeviceView | null {
   return (
     devices.find((device) => device.id === preferred) ??
     devices.find((device) => isEngaged(device.state)) ??
+    devices.find((device) => device.lastConnected) ??
     devices[0] ??
     null
   );

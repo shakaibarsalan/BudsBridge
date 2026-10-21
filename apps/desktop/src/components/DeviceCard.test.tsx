@@ -12,6 +12,7 @@ const device: DeviceView = {
   state: "disconnected",
   reconnectAttempt: null,
   lastError: null,
+  lastConnected: false,
 };
 
 function renderCard(overrides: Partial<DeviceView> = {}) {

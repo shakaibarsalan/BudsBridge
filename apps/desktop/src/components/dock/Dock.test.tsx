@@ -48,6 +48,7 @@ const tws: DeviceView = {
   state: "connected",
   reconnectAttempt: null,
   lastError: null,
+  lastConnected: false,
 };
 
 const speaker: DeviceView = { ...tws, id: "speaker", name: "Speaker", state: "disconnected" };

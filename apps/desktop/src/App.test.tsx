@@ -46,6 +46,7 @@ const buds: DeviceView = {
   state: "disconnected",
   reconnectAttempt: null,
   lastError: null,
+  lastConnected: false,
 };
 
 let pushDevices: (devices: DeviceView[]) => void = () => {};
