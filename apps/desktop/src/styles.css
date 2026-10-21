@@ -782,6 +782,22 @@ button {
   background: var(--fill-1);
 }
 
+.panel > .button {
+  align-self: flex-start;
+}
+
+.report {
+  width: 100%;
+  min-height: 120px;
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--fill-2);
+  color: inherit;
+  font: 11px/1.4 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  resize: vertical;
+}
+
 .panel h2 {
   font-size: 13px;
   font-weight: 600;

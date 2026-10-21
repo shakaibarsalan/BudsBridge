@@ -1,4 +1,5 @@
 import { DeviceCard } from "./components/DeviceCard";
+import { DiagnosticsPanel } from "./components/DiagnosticsPanel";
 import { PhoneAudioPanel } from "./components/PhoneAudioPanel";
 import { SettingsPanel } from "./components/SettingsPanel";
 import { useBudsBridge } from "./lib/useBudsBridge";
@@ -64,6 +65,8 @@ export function App() {
             onChange={(next) => void saveSettings(next)}
           />
         )}
+
+        <DiagnosticsPanel />
       </main>
 
       <footer className="app__footer muted">v{info?.version ?? "…"}</footer>

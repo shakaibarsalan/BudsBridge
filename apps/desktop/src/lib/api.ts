@@ -25,6 +25,8 @@ export const api = {
     listen<SourceView[]>(SOURCES_CHANGED, (event) => handler(event.payload)),
   /** Paired phones Windows won't stream audio from. */
   listUnavailablePhones: () => invoke<UnavailablePhone[]>("list_unavailable_phones"),
+  /** What BudsBridge and Windows see, as text for a bug report. */
+  diagnostics: () => invoke<string>("diagnostics"),
   /** Opens the full window (settings) and closes the dock. */
   openSettings: () => invoke<void>("open_settings"),
   quitApp: () => invoke<void>("quit_app"),
