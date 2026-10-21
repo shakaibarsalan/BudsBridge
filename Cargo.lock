@@ -346,7 +346,7 @@ dependencies = [
 
 [[package]]
 name = "budsbridge-core"
-version = "0.3.5"
+version = "0.3.6"
 dependencies = [
  "budsbridge-core",
  "log",
@@ -358,7 +358,7 @@ dependencies = [
 
 [[package]]
 name = "budsbridge-desktop"
-version = "0.3.5"
+version = "0.3.6"
 dependencies = [
  "budsbridge-core",
  "budsbridge-win",
@@ -375,7 +375,7 @@ dependencies = [
 
 [[package]]
 name = "budsbridge-win"
-version = "0.3.5"
+version = "0.3.6"
 dependencies = [
  "budsbridge-core",
  "log",
