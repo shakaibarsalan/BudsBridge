@@ -6,6 +6,12 @@ name: Release
 #   - Actions -> Release -> Run workflow on main with the version tag; the release
 #     step creates the tag on that commit.
 # Release notes come from docs/releases/<tag>.md.
+#
+# Code signing (SignPath Foundation, see .signpath/README.md) turns on once the
+# repository variable SIGNPATH_ORGANIZATION_ID and the secret SIGNPATH_API_TOKEN
+# are set. The app is signed first, so the installer is built around the signed
+# copy, then the installer is signed. Each request waits for an approver in
+# SignPath. Without the variable, releases are published unsigned.
 on:
   push:
     tags: ["v*"]
@@ -17,6 +23,8 @@ on:
 
 permissions:
   contents: write
+  # SignPath reads the unsigned files from this run's artifacts.
+  actions: read
 
 defaults:
   run:
@@ -28,6 +36,7 @@ jobs:
     runs-on: windows-latest
     env:
       TAG: ${{ github.event.inputs.tag || github.ref_name }}
+      SIGN: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
     steps:
       # A tag push builds the tag; a manual run builds the commit it was started on.
       - uses: actions/checkout@v4
@@ -49,23 +58,92 @@ jobs:
             exit 1
           fi
           test -f "docs/releases/$TAG.md" || { echo "missing docs/releases/$TAG.md" >&2; exit 1; }
-      - name: Build
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+
+      - name: Build the app
         working-directory: apps/desktop
-        run: pnpm install --frozen-lockfile && pnpm tauri build --ci
+        run: pnpm install --frozen-lockfile && pnpm tauri build --ci --no-bundle
+
+      # Signed before the installer is built, so the copy it installs is signed
+      # too: Smart App Control checks every program, not just the installer.
+      - name: Upload the app for signing
+        id: unsigned-app
+        if: env.SIGN == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-app
+          path: target/release/budsbridge.exe
+          if-no-files-found: error
+      - name: Sign the app
+        if: env.SIGN == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'BudsBridge' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG || 'release-signing' }}
+          artifact-configuration-slug: app
+          github-artifact-id: ${{ steps.unsigned-app.outputs.artifact-id }}
+          wait-for-completion: true
+          # Leaves time for an approver to approve the request in SignPath.
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: signed/app
+          parameters: |
+            version: ${{ toJSON(env.VERSION) }}
+      - name: Use the signed app
+        if: env.SIGN == 'true'
+        run: cp signed/app/budsbridge.exe target/release/budsbridge.exe
+
+      - name: Build the installer
+        working-directory: apps/desktop
+        run: pnpm tauri bundle --ci --bundles nsis
       - name: Collect release files
         run: |
-          version="${TAG#v}"
           mkdir -p release
           cp target/release/budsbridge.exe release/BudsBridge.exe
-          cp target/release/bundle/nsis/*-setup.exe "release/BudsBridge-${version}-windows-x64-setup.exe"
+          cp target/release/bundle/nsis/*-setup.exe "release/BudsBridge-${VERSION}-windows-x64-setup.exe"
+
+      - name: Upload the installer for signing
+        id: unsigned-installer
+        if: env.SIGN == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: unsigned-installer
+          path: release/BudsBridge-${{ env.VERSION }}-windows-x64-setup.exe
+          if-no-files-found: error
+      - name: Sign the installer
+        if: env.SIGN == 'true'
+        uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ vars.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: ${{ vars.SIGNPATH_PROJECT_SLUG || 'BudsBridge' }}
+          signing-policy-slug: ${{ vars.SIGNPATH_POLICY_SLUG || 'release-signing' }}
+          artifact-configuration-slug: installer
+          github-artifact-id: ${{ steps.unsigned-installer.outputs.artifact-id }}
+          wait-for-completion: true
+          wait-for-completion-timeout-in-seconds: 3600
+          output-artifact-directory: signed/installer
+          parameters: |
+            version: ${{ toJSON(env.VERSION) }}
+      - name: Use the signed installer
+        if: env.SIGN == 'true'
+        run: cp signed/installer/*-setup.exe release/
+
+      - name: Checksums and release notes
+        run: |
           (cd release && sha256sum BudsBridge*.exe > SHA256SUMS.txt && cat SHA256SUMS.txt)
           ls -l release
+          {
+            cat "docs/releases/$TAG.md"
+            printf '\n---\n\n[Code signing policy](https://github.com/%s#code-signing-policy)\n' "$GITHUB_REPOSITORY"
+          } > release-notes.md
       - uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ env.TAG }}
           target_commitish: ${{ github.sha }}
           name: BudsBridge ${{ env.TAG }}
-          body_path: docs/releases/${{ env.TAG }}.md
+          body_path: release-notes.md
           # Only tags like v1.2.0-beta are pre-releases. GitHub's sidebar and
           # releases/latest show full releases only.
           prerelease: ${{ contains(env.TAG, '-') }}

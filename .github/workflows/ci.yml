@@ -90,9 +90,13 @@ jobs:
           node-version: 22
           cache: pnpm
           cache-dependency-path: apps/desktop/pnpm-lock.yaml
-      - name: Build NSIS installer
+      # Two steps, like the release: the app first, then the installer around it.
+      - name: Build the app
         working-directory: apps/desktop
-        run: pnpm install --frozen-lockfile && pnpm tauri build --ci
+        run: pnpm install --frozen-lockfile && pnpm tauri build --ci --no-bundle
+      - name: Build the NSIS installer
+        working-directory: apps/desktop
+        run: pnpm tauri bundle --ci --bundles nsis
       - uses: actions/upload-artifact@v4
         with:
           name: BudsBridge-windows-installer
