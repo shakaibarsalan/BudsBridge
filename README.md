@@ -1,3 +1,7 @@
+
+
+https://github.com/user-attachments/assets/5640bf28-8dc4-49ea-929c-d4354cf2ad0f
+
 <div align="center">
 
 <img src="apps/desktop/src-tauri/icons/128x128.png" width="96" alt="BudsBridge logo">
