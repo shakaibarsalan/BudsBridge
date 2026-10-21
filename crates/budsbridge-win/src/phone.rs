@@ -236,8 +236,13 @@ impl Drop for WatcherGuard {
     }
 }
 
+/// `HRESULT_FROM_WIN32(ERROR_GEN_FAILURE)`: "A device attached to the system
+/// is not functioning". Reported with some phone and adapter pairs.
+const GEN_FAILURE: i32 = 0x8007_001F_u32 as i32;
+
 fn open_error(status: AudioPlaybackConnectionOpenResultStatus, extended: i32) -> BackendError {
     let message = match status {
+        _ if extended == GEN_FAILURE => return driver_failure(),
         AudioPlaybackConnectionOpenResultStatus::RequestTimedOut => {
             "The phone didn't answer. Is its Bluetooth on and is it nearby?".to_owned()
         }
@@ -249,7 +254,18 @@ fn open_error(status: AudioPlaybackConnectionOpenResultStatus, extended: i32) ->
     BackendError::Other(message)
 }
 
+fn driver_failure() -> BackendError {
+    BackendError::Other(
+        "Windows' Bluetooth driver couldn't start audio from this phone (error 0x8007001f). \
+         Some phone and Bluetooth adapter pairs don't work with it."
+            .to_owned(),
+    )
+}
+
 fn os_error(err: windows::core::Error) -> BackendError {
+    if err.code().0 == GEN_FAILURE {
+        return driver_failure();
+    }
     BackendError::Os {
         code: err.code().0,
         message: err.message().to_string(),
