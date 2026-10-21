@@ -80,6 +80,8 @@ pub struct DeviceView {
     /// Auto-reconnect attempt that is scheduled or running, if any.
     pub reconnect_attempt: Option<u32>,
     pub last_error: Option<String>,
+    /// The device connected most recently; it may still be connected.
+    pub last_connected: bool,
 }
 
 pub const CONNECT_TIMEOUT_MESSAGE: &str =
@@ -209,6 +211,7 @@ impl Entry {
             state: self.state,
             reconnect_attempt: self.reconnect_attempt,
             last_error: self.last_error.clone(),
+            last_connected: false,
         }
     }
 }
@@ -217,6 +220,8 @@ impl Entry {
 pub struct Controller {
     config: ControllerConfig,
     entries: BTreeMap<DeviceId, Entry>,
+    /// So "the buds" still means the ones just released, after they are.
+    last_connected: Option<DeviceId>,
 }
 
 impl Controller {
@@ -224,6 +229,7 @@ impl Controller {
         Self {
             config,
             entries: BTreeMap::new(),
+            last_connected: None,
         }
     }
 
@@ -256,6 +262,25 @@ impl Controller {
             }
         }
         self.entries.retain(|id, _| seen.contains(id));
+        self.remember_connected();
+    }
+
+    /// Keeps `last_connected` on a connected device, preferring the one
+    /// already remembered.
+    fn remember_connected(&mut self) {
+        let still_connected = self
+            .last_connected
+            .as_ref()
+            .and_then(|id| self.entries.get(id))
+            .is_some_and(|entry| entry.state.is_engaged());
+        if !still_connected
+            && let Some((id, _)) = self
+                .entries
+                .iter()
+                .find(|(_, entry)| entry.state.is_engaged())
+        {
+            self.last_connected = Some(id.clone());
+        }
     }
 
     pub fn handle_command(
@@ -285,6 +310,7 @@ impl Controller {
             }
             entry.state = ConnectionState::Connecting;
             entry.deadline = Some(now + self.config.connect_timeout);
+            self.last_connected = Some(id.clone());
             Ok(vec![Action::Connect(id)])
         } else {
             entry.intent = Intent::Disconnected;
@@ -364,7 +390,14 @@ impl Controller {
 
     /// Devices sorted by name, for the UI and tray.
     pub fn views(&self) -> Vec<DeviceView> {
-        let mut views: Vec<_> = self.entries.values().map(Entry::view).collect();
+        let mut views: Vec<_> = self
+            .entries
+            .values()
+            .map(|entry| DeviceView {
+                last_connected: self.last_connected.as_ref() == Some(&entry.device.id),
+                ..entry.view()
+            })
+            .collect();
         views.sort_by(|a, b| {
             a.name
                 .to_lowercase()
@@ -375,7 +408,8 @@ impl Controller {
     }
 
     /// Device a "toggle" hotkey acts on: the preferred device if it is
-    /// paired, otherwise the connected one, otherwise the first by name.
+    /// paired, otherwise the connected one, otherwise the one connected most
+    /// recently, otherwise the first by name.
     pub fn hotkey_target(&self, preferred: Option<&DeviceId>) -> Option<DeviceId> {
         if let Some(id) = preferred.filter(|id| self.entries.contains_key(*id)) {
             return Some(id.clone());
@@ -384,6 +418,7 @@ impl Controller {
         views
             .iter()
             .find(|view| view.state.is_engaged())
+            .or_else(|| views.iter().find(|view| view.last_connected))
             .or_else(|| views.first())
             .map(|view| view.id.clone())
     }
@@ -766,14 +801,43 @@ mod tests {
         assert_eq!(c.hotkey_target(Some(&id("missing"))), Some(id("b")));
         assert_eq!(c.hotkey_target(None), Some(id("b")));
 
-        h.snapshot(
-            secs(1),
+        let mut fresh = harness();
+        fresh.snapshot(
+            secs(0),
             vec![
                 AudioDevice::new("a", "Alpha", false),
                 AudioDevice::new("b", "Beta", false),
             ],
         );
-        assert_eq!(h.controller.hotkey_target(None), Some(id("a")));
+        assert_eq!(fresh.controller.hotkey_target(None), Some(id("a")));
         assert_eq!(Controller::default().hotkey_target(None), None);
+    }
+
+    #[test]
+    fn released_buds_stay_the_hotkey_target() {
+        let mut h = harness();
+        h.snapshot(
+            secs(0),
+            vec![
+                AudioDevice::new("a", "Alpha", false),
+                AudioDevice::new("b", "Beta", true),
+            ],
+        );
+        h.command(secs(1), Command::Disconnect(id("b")));
+        h.snapshot(
+            secs(2),
+            vec![
+                AudioDevice::new("a", "Alpha", false),
+                AudioDevice::new("b", "Beta", false),
+            ],
+        );
+        assert_eq!(h.controller.hotkey_target(None), Some(id("b")));
+        let views = h.controller.views();
+        assert!(!views[0].last_connected);
+        assert!(views[1].last_connected);
+
+        // Connecting another device makes that one "the buds".
+        h.command(secs(3), Command::Connect(id("a")));
+        assert_eq!(h.controller.hotkey_target(None), Some(id("a")));
     }
 }

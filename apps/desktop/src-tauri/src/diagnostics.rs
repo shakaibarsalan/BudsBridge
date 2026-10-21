@@ -96,6 +96,7 @@ mod tests {
             state: ConnectionState::Connected,
             reconnect_attempt: None,
             last_error: None,
+            last_connected: true,
         }];
         let phones = [SourceView {
             id: DeviceId::new("pixel"),

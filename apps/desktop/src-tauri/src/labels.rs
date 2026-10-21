@@ -60,6 +60,7 @@ mod tests {
             state,
             reconnect_attempt: attempt,
             last_error: None,
+            last_connected: false,
         }
     }
 
