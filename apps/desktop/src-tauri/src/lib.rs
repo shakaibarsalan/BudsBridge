@@ -5,6 +5,7 @@
 mod commands;
 mod dock;
 mod hotkey;
+mod instance;
 mod labels;
 mod state;
 mod system;
@@ -27,9 +28,10 @@ pub const SOURCES_CHANGED: &str = "sources-changed";
 pub const DEMO_ENV: &str = "BUDSBRIDGE_DEMO";
 
 pub fn run() {
+    instance::wait_if_replacing();
     tauri::Builder::default()
-        .plugin(tauri_plugin_single_instance::init(|app, _args, _cwd| {
-            dock::show(app)
+        .plugin(tauri_plugin_single_instance::init(|app, args, cwd| {
+            instance::second_instance(app, &args, &cwd)
         }))
         .plugin(
             tauri_plugin_log::Builder::new()
