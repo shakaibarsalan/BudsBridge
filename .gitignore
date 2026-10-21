@@ -19,3 +19,6 @@ apps/desktop/src-tauri/gen/schemas/
 .idea/
 .DS_Store
 Thumbs.db
+
+# Video stage build (apps/desktop/vite.video.config.ts)
+dist-video/

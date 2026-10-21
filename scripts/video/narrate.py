@@ -2,7 +2,7 @@
 """Speaks the walkthrough's lines with Kokoro, offline.
 
 Writes one WAV per line plus lines.json (id, subtitle, file, duration) to
-OUT_DIR (default target/video/voice). record.py holds each step until its
+OUT_DIR (default target/video/voice). The stage holds each step until its
 line has been spoken, so editing a line here retimes the video.
 
 Needs kokoro-onnx and its model files: kokoro-v1.0.onnx and voices-v1.0.bin
@@ -19,57 +19,44 @@ from pathlib import Path
 import numpy as np
 
 # (step id, spoken text, subtitle). The subtitle differs only where the
-# spoken form has to spell something out.
+# spoken form has to spell something out; words between asterisks are
+# highlighted on screen. The ids match the steps in
+# apps/desktop/src/video/scenario.ts.
 LINES = [
     (
-        "tray",
-        "My earbuds connect to one device at a time, so I kept switching them between my phone "
-        "and my laptop. Buds Bridge fixes that, from the Windows tray.",
-        "My earbuds connect to one device at a time, so I kept switching them between my phone "
-        "and my laptop. BudsBridge fixes that, from the Windows tray.",
+        "hook",
+        "My earbuds connect to one device at a time. My phone, or my laptop. Never both.",
+        "My earbuds connect to *one device* at a time. Phone or laptop, never both.",
     ),
-    ("open", "One click on its icon opens the dock.", None),
     (
-        "picture",
-        "The picture shows where your sound goes: phone, laptop, buds. "
-        "Right now the buds play the laptop.",
-        None,
+        "open",
+        "So I built Buds Bridge. It lives in the Windows tray.",
+        "So I built *BudsBridge*. It lives in the Windows tray.",
     ),
     (
         "phone",
-        "Tap Phone audio. The phone now plays through the laptop, "
-        "so you hear both in the same buds, with nothing to switch.",
-        None,
+        "Tap Phone audio, and my phone plays through the laptop, into the same buds.",
+        "Tap *Phone audio*: my phone plays through the laptop, into the same buds.",
     ),
-    ("sources", "The count shows two sources reaching your buds: phone and laptop.", None),
     (
-        "release",
-        "Leaving your desk? Tap Buds, and the laptop lets go, so your phone can take them.",
-        None,
+        "second",
+        "A second phone can join as well. Now I hear both phones and the laptop, together.",
+        "A second phone can join too. Now I hear *both phones and the laptop*, together.",
+    ),
+    (
+        "handover",
+        "Leaving my desk? One tap frees the buds for my phone.",
+        "Leaving my desk? *One tap* frees the buds for my phone.",
     ),
     (
         "hotkey",
-        "Back at the laptop, Control Alt B brings them back, from any app.",
-        "Back at the laptop, Ctrl+Alt+B brings them back, from any app.",
-    ),
-    ("reconnect", "Auto reconnect tries again if the buds drop out on their own.", None),
-    (
-        "devices",
-        "Devices lists every pair of buds and headphones, each with its own button.",
-        None,
-    ),
-    ("phones", "Phones lists your paired phones, with a switch to hear each one in your buds.", None),
-    (
-        "settings",
-        "All settings opens the full window: the hotkey, auto reconnect, and start with Windows.",
-        None,
+        "Back at the laptop, Control Alt B brings them back.",
+        "Back at the laptop, *Ctrl+Alt+B* brings them back.",
     ),
     (
         "end",
-        "Buds Bridge is free and open source. One download for Windows, "
-        "and nothing to install on your phone.",
-        "BudsBridge is free and open source. One download for Windows, "
-        "and nothing to install on your phone.",
+        "Buds Bridge. Free and open source, for Windows.",
+        "*BudsBridge*. Free and open source, for Windows.",
     ),
 ]
 
