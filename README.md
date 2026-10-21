@@ -150,7 +150,7 @@ The reasoning behind every choice, including what is impossible, is in [docs/FEA
 | Device list, connect/disconnect, tray, hotkey, auto-reconnect, start with Windows | built; device listing confirmed on real hardware, switching awaiting the [hardware check](docs/HARDWARE_TESTING.md) |
 | Bridge mode: phone audio through the laptop over Bluetooth | built and working on the first real test (Windows 11 laptop, TWS buds), with two phones at once (OPPO A83 and Pixel 7); delay and stutter not measured yet |
 | Tray dock and settings window in the InverterBar style | built |
-| Code signing, so Smart App Control and SmartScreen trust the download | release workflow ready; applying to SignPath Foundation |
+| Code signing, so Smart App Control and SmartScreen trust the download | release workflow ready; application to SignPath Foundation under review |
 | Phone audio over USB or Wi-Fi ADB (bundled scrcpy, audio only) | planned |
 | Audio sources panel with per-source volume and a latency indicator | planned |
 | Priority and ducking between laptop and phone audio | planned |
@@ -189,7 +189,7 @@ Anything Windows lists as a Bluetooth audio device: earbuds, headphones, speaker
 No. There is no account, no telemetry and no network code. It talks to Windows' audio and Bluetooth stack only.
 
 **Why does Windows warn me when I open it?**
-The `.exe` isn't code-signed yet. Without a signature, SmartScreen warns once (**More info → Run anyway**), and Smart App Control, where it is on, blocks the app completely. A signature from a recognised certificate removes the block: the project is applying for free signing by SignPath Foundation, and the release workflow is ready for it (see the [code signing policy](#code-signing-policy)).
+The `.exe` isn't code-signed yet. Without a signature, SmartScreen warns once (**More info → Run anyway**), and Smart App Control, where it is on, blocks the app completely. A signature from a recognised certificate removes the block: the project has applied for free signing by SignPath Foundation (under review), and the release workflow is ready for it (see the [code signing policy](#code-signing-policy)).
 
 ## How it's built
 
@@ -218,7 +218,7 @@ Running the tests and the other development commands are in [docs/DEVELOPMENT.md
 
 ## Code signing policy
 
-Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org). *BudsBridge is applying for this; until SignPath Foundation accepts the project, releases are unsigned.*
+Free code signing provided by [SignPath.io](https://about.signpath.io), certificate by [SignPath Foundation](https://signpath.org). *BudsBridge has applied and the application is under review; until SignPath Foundation accepts the project, releases are unsigned.*
 
 - Committers and reviewers: [Muhammad Shakaib Arsalan](https://github.com/shakaibarsalan)
 - Approvers: [Muhammad Shakaib Arsalan](https://github.com/shakaibarsalan)
