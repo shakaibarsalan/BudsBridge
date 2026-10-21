@@ -380,6 +380,7 @@ dependencies = [
  "budsbridge-core",
  "log",
  "windows",
+ "windows-collections",
  "windows-core",
 ]
 

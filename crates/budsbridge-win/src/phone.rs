@@ -6,7 +6,9 @@
 use std::collections::HashMap;
 use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
-use budsbridge_core::{AudioSource, BackendError, ChangeNotifier, DeviceId, SourceBackend, Watch};
+use budsbridge_core::{
+    AudioSource, BackendError, ChangeNotifier, DeviceId, SourceBackend, UnavailableSource, Watch,
+};
 use windows::Devices::Enumeration::{DeviceInformation, DeviceInformationUpdate, DeviceWatcher};
 use windows::Foundation::TypedEventHandler;
 use windows::Media::Audio::{
@@ -14,7 +16,7 @@ use windows::Media::Audio::{
 };
 use windows::core::{HSTRING, IInspectable};
 
-use crate::com;
+use crate::{bluetooth, com};
 
 struct Connection {
     connection: AudioPlaybackConnection,
@@ -92,6 +94,23 @@ impl SourceBackend for PhoneAudioBackend {
             });
         }
         Ok(sources)
+    }
+
+    fn unavailable(&self) -> Vec<UnavailableSource> {
+        match Self::selector() {
+            Ok(selector) => bluetooth::unavailable_phones(&selector.to_string()),
+            Err(err) => {
+                log::warn!("phone audio is unavailable: {err}");
+                Vec::new()
+            }
+        }
+    }
+
+    fn diagnostics(&self) -> String {
+        match Self::selector() {
+            Ok(selector) => bluetooth::report(&selector.to_string()),
+            Err(err) => format!("Phone audio isn't available on this Windows: {err}"),
+        }
     }
 
     fn open(&self, id: &DeviceId) -> Result<(), BackendError> {

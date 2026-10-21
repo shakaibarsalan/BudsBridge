@@ -5,15 +5,19 @@
 //! * Connects/disconnects them with `KSPROPSETID_BtAudio` one-shot requests.
 //! * Watches endpoint state changes with `IMMNotificationClient`.
 //! * Bridge mode: receives a paired phone's audio with
-//!   `AudioPlaybackConnection` ([`PhoneAudioBackend`]).
+//!   `AudioPlaybackConnection` ([`PhoneAudioBackend`]), and lists paired
+//!   phones Windows won't stream from.
 //!
-//! Only [`classify`] is compiled on other platforms, so its logic is tested
-//! everywhere.
+//! Only [`classify`] and [`paired`] are compiled on other platforms, so their
+//! logic is tested everywhere.
 
 pub mod classify;
+pub mod paired;
 
 #[cfg(windows)]
 mod backend;
+#[cfg(windows)]
+mod bluetooth;
 #[cfg(windows)]
 mod com;
 #[cfg(windows)]
