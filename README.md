@@ -8,7 +8,7 @@
 
 A small dock for Windows 11 that opens from the tray. The buds stay connected to the laptop, and your phone plays its audio through the laptop into the same buds, so you hear both and never switch. When you do want the buds back on the phone, one click or a hotkey hands them over. Everything runs on your machine. A single `.exe`, no account, nothing to install on your phone.
 
-[![Download](https://img.shields.io/badge/%E2%86%93%20Download-Windows%2011-0067c0?style=for-the-badge)](https://github.com/shakaibarsalan/BudsBridge/releases)
+[![Download](https://img.shields.io/badge/%E2%86%93%20Download-Windows%2011-0067c0?style=for-the-badge)](https://github.com/shakaibarsalan/BudsBridge/releases/latest)
 [![Feasibility study](https://img.shields.io/badge/Read-feasibility%20study-1f1e1d?style=for-the-badge)](docs/FEASIBILITY.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-0067c0.svg)](LICENSE)
@@ -66,13 +66,15 @@ Phone ──Bluetooth──► Laptop ──Bluetooth──► Buds
 
 ## Install
 
-From [Releases](https://github.com/shakaibarsalan/BudsBridge/releases):
+From the [latest release](https://github.com/shakaibarsalan/BudsBridge/releases/latest):
 
 | File | What it is |
 |---|---|
 | `BudsBridge.exe` | a single file, no installer: download it and open it |
 | `BudsBridge-<version>-windows-x64-setup.exe` | installer for your user only: Start menu entry and uninstaller, no admin prompt |
 | `SHA256SUMS.txt` | checksums for both |
+
+Opening a newer `BudsBridge.exe` while an older copy runs in the tray hands over to the new one.
 
 **Nothing else needs to be installed.** Windows 11 already has the WebView2 runtime the window uses, and the phone needs no app for any of this. The only setup is pairing the buds with Windows once.
 
@@ -142,7 +144,7 @@ The reasoning behind every choice, including what is impossible, is in [docs/FEA
 | Step | Status |
 |---|---|
 | Device list, connect/disconnect, tray, hotkey, auto-reconnect, start with Windows | built; device listing confirmed on real hardware, switching awaiting the [hardware check](docs/HARDWARE_TESTING.md) |
-| Bridge mode: phone audio through the laptop over Bluetooth | built and working on the first real test (Windows 11 laptop, Android phone, TWS buds); delay and stutter not measured yet |
+| Bridge mode: phone audio through the laptop over Bluetooth | built and working on the first real test (Windows 11 laptop, OPPO A83, TWS buds); delay and stutter not measured yet |
 | Final UI from the reference design | waiting on the design |
 | Phone audio over USB or Wi-Fi ADB (bundled scrcpy, audio only) | planned |
 | Audio sources panel with per-source volume and a latency indicator | planned |
@@ -150,7 +152,7 @@ The reasoning behind every choice, including what is impossible, is in [docs/FEA
 
 ## Honest notes
 
-- **Tested on one real setup so far.** On a Windows 11 laptop with TWS buds and an Android phone, BudsBridge lists the paired devices correctly and bridge mode plays the phone through the laptop into the buds. Delay and stutter haven't been measured yet, and the rest of the [hardware checklist](docs/HARDWARE_TESTING.md) is still to run; this README will be updated with what it finds.
+- **Tested on one real setup so far.** On a Windows 11 laptop with TWS buds and an OPPO A83 Android phone, BudsBridge lists the paired devices correctly and bridge mode plays the phone through the laptop into the buds. Delay and stutter haven't been measured yet, and the rest of the [hardware checklist](docs/HARDWARE_TESTING.md) is still to run; this README will be updated with what it finds.
 - **Bridge mode is "dual connectivity" through the laptop, not in the buds.** The buds still hold one link, to the laptop. You hear the phone only while the laptop is on and in range; away from it, hand the buds to the phone.
 - **Phone audio arrives a little late**, roughly 0.2–0.4 s, because it makes two Bluetooth hops. Fine for music and podcasts; lip-sync is off if you watch a video on the phone's own screen.
 - **Two Bluetooth audio streams at once can stutter on some laptops**, because one radio carries both. Item B3 of the [hardware checklist](docs/HARDWARE_TESTING.md) checks yours.
