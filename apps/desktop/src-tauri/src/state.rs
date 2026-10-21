@@ -3,9 +3,11 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Mutex, MutexGuard, PoisonError};
+use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 
-use budsbridge_core::{BridgeHandle, BridgeRuntime, Runtime, RuntimeHandle, Settings};
+use budsbridge_core::{
+    BridgeHandle, BridgeRuntime, Runtime, RuntimeHandle, Settings, SourceBackend,
+};
 use serde::Serialize;
 
 /// What the UI needs to know about the running app.
@@ -21,6 +23,8 @@ pub struct AppInfo {
 pub struct AppState {
     runtime: Runtime,
     bridge: BridgeRuntime,
+    /// Also driven by `bridge`; kept for the phone list and diagnostics.
+    sources: Arc<dyn SourceBackend>,
     settings: Mutex<Settings>,
     settings_path: PathBuf,
     warnings: Mutex<Vec<String>>,
@@ -36,6 +40,7 @@ impl AppState {
     pub fn new(
         runtime: Runtime,
         bridge: BridgeRuntime,
+        sources: Arc<dyn SourceBackend>,
         settings: Settings,
         settings_path: PathBuf,
         mica: bool,
@@ -43,6 +48,7 @@ impl AppState {
         Self {
             runtime,
             bridge,
+            sources,
             settings: Mutex::new(settings),
             settings_path,
             warnings: Mutex::new(Vec::new()),
@@ -57,6 +63,10 @@ impl AppState {
 
     pub fn bridge(&self) -> BridgeHandle {
         self.bridge.handle()
+    }
+
+    pub fn sources(&self) -> Arc<dyn SourceBackend> {
+        Arc::clone(&self.sources)
     }
 
     pub fn settings(&self) -> Settings {

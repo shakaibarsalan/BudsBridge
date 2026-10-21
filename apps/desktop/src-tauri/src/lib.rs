@@ -3,6 +3,7 @@
 //! bridge mode).
 
 mod commands;
+mod diagnostics;
 mod dock;
 mod hotkey;
 mod instance;
@@ -52,6 +53,8 @@ pub fn run() {
             commands::update_settings,
             commands::list_sources,
             commands::set_source_enabled,
+            commands::list_unavailable_phones,
+            commands::diagnostics,
             commands::open_settings,
             commands::quit_app,
             commands::dock_resize,
@@ -106,7 +109,7 @@ fn setup(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
 
     let events = app.clone();
     let bridge = BridgeRuntime::spawn(
-        sources,
+        Arc::clone(&sources),
         settings.bridged_phones.clone(),
         default_retry_policy(),
         Box::new(move |views| {
@@ -121,6 +124,7 @@ fn setup(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
     app.manage(AppState::new(
         runtime,
         bridge,
+        sources,
         settings.clone(),
         settings_path,
         mica,
@@ -162,6 +166,13 @@ fn supports_mica() -> bool {
     return budsbridge_win::supports_mica();
     #[cfg(not(windows))]
     false
+}
+
+pub fn windows_build() -> Option<u32> {
+    #[cfg(windows)]
+    return budsbridge_win::windows_build();
+    #[cfg(not(windows))]
+    None
 }
 
 /// The full window, used for settings. It starts hidden.
