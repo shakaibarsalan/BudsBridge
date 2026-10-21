@@ -60,6 +60,11 @@ The **Release** workflow checks that the tag matches the app version, builds on 
 publishes `BudsBridge.exe` (portable), the setup `.exe` and `SHA256SUMS.txt` as the latest
 release. A tag with a suffix, such as `v1.0.0-beta`, is published as a pre-release instead.
 
+It builds in two steps, `tauri build --no-bundle` for the program and `tauri bundle` for the
+installer, so that once code signing is set up the program can be signed before the installer
+is built around it. Signing is off until the repository has the SignPath variable and secret;
+then each release waits for two approvals in SignPath. See [`.signpath/`](../.signpath/README.md).
+
 ## README media
 
 `scripts/record-demo.sh` (Linux: Xvfb, xdotool, ffmpeg, ImageMagick) runs the app in demo mode
