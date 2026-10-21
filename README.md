@@ -1,7 +1,3 @@
-
-
-https://github.com/user-attachments/assets/5640bf28-8dc4-49ea-929c-d4354cf2ad0f
-
 <div align="center">
 
 <img src="apps/desktop/src-tauri/icons/128x128.png" width="96" alt="BudsBridge logo">
@@ -24,13 +20,11 @@ A small dock for Windows 11 that opens from the tray. The buds stay connected to
 
 <sub>The dock, recorded in demo mode with simulated devices so it runs anywhere: the <b>Phone audio</b> tile brings the phone in (the green link, now <i>2 sources</i> in the buds), the <b>Buds</b> tile hands the buds back, <code>Ctrl+Alt+B</code> brings them back from anywhere, and <b>Devices</b> opens the full list in place. Also as <a href="docs/media/demo.mp4">MP4</a>.</sub>
 
-<br><br>
-
-<a href="docs/media/tutorial.mp4"><img src="docs/media/tutorial-poster.jpg" width="300" alt="Play the walkthrough video"></a>
-
-<sub><b><a href="docs/media/tutorial.mp4">Watch the 30-second video</a></b>, with voice-over and subtitles: the dock, phone audio, a second phone joining, and handing the buds over and back.</sub>
-
 </div>
+
+https://github.com/user-attachments/assets/5640bf28-8dc4-49ea-929c-d4354cf2ad0f
+
+<p align="center"><sub><b>The 30-second video</b>, with voice-over and subtitles: the dock, phone audio, a second phone joining, and handing the buds over and back.</sub></p>
 
 ---
 
