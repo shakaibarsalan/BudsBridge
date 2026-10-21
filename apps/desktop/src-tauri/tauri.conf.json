@@ -19,6 +19,8 @@
     "active": true,
     "targets": "all",
     "category": "Utility",
+    "publisher": "Muhammad Shakaib Arsalan",
+    "copyright": "Copyright (c) 2026 Muhammad Shakaib Arsalan",
     "shortDescription": "One-click Bluetooth buds switching for Windows",
     "icon": [
       "icons/32x32.png",
