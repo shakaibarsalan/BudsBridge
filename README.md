@@ -82,7 +82,7 @@ Opening a newer `BudsBridge.exe` while an older copy runs in the tray hands over
 
 **Nothing else needs to be installed.** Windows 11 already has the WebView2 runtime the window uses, and the phone needs no app for any of this. The only setup is pairing the buds with Windows once.
 
-The build isn't code-signed, so the first time Windows shows *"Windows protected your PC"*: click **More info → Run anyway**.
+The build isn't code-signed yet, so the first time Windows shows *"Windows protected your PC"*: click **More info → Run anyway**. On a PC with **Smart App Control** turned on, Windows blocks unsigned apps outright and offers no way past it; that needs a code-signing certificate, which is [on the roadmap](#roadmap).
 
 ### Or build it yourself
 
@@ -150,6 +150,7 @@ The reasoning behind every choice, including what is impossible, is in [docs/FEA
 | Device list, connect/disconnect, tray, hotkey, auto-reconnect, start with Windows | built; device listing confirmed on real hardware, switching awaiting the [hardware check](docs/HARDWARE_TESTING.md) |
 | Bridge mode: phone audio through the laptop over Bluetooth | built and working on the first real test (Windows 11 laptop, TWS buds), with two phones at once (OPPO A83 and Pixel 7); delay and stutter not measured yet |
 | Tray dock and settings window in the InverterBar style | built |
+| Code signing, so Smart App Control and SmartScreen trust the download | planned |
 | Phone audio over USB or Wi-Fi ADB (bundled scrcpy, audio only) | planned |
 | Audio sources panel with per-source volume and a latency indicator | planned |
 | Priority and ducking between laptop and phone audio | planned |
@@ -188,7 +189,7 @@ Anything Windows lists as a Bluetooth audio device: earbuds, headphones, speaker
 No. There is no account, no telemetry and no network code. It talks to Windows' audio and Bluetooth stack only.
 
 **Why does Windows warn me when I open it?**
-The `.exe` isn't code-signed, because a certificate costs money. SmartScreen shows the warning once; **More info → Run anyway**.
+The `.exe` isn't code-signed yet. Without a signature, SmartScreen warns once (**More info → Run anyway**), and Smart App Control, where it is on, blocks the app completely. A signature from a recognised certificate removes the block; getting one is planned.
 
 ## How it's built
 
