@@ -57,8 +57,8 @@ pnpm tauri build   # target/release/bundle/nsis/BudsBridge_<version>_x64-setup.e
    **Actions → Release → Run workflow** on `main` and enter `v<version>`; that run creates the tag.
 
 The **Release** workflow checks that the tag matches the app version, builds on Windows and
-publishes `BudsBridge.exe` (portable), the setup `.exe` and `SHA256SUMS.txt`. 0.x releases are
-marked as pre-releases until the hardware checklist passes.
+publishes `BudsBridge.exe` (portable), the setup `.exe` and `SHA256SUMS.txt` as the latest
+release. A tag with a suffix, such as `v1.0.0-beta`, is published as a pre-release instead.
 
 ## README media
 

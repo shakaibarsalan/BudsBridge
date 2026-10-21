@@ -66,7 +66,9 @@ jobs:
           target_commitish: ${{ github.sha }}
           name: BudsBridge ${{ env.TAG }}
           body_path: docs/releases/${{ env.TAG }}.md
-          # 0.x builds have not been through the hardware checklist yet.
-          prerelease: ${{ startsWith(env.TAG, 'v0.') }}
+          # Only tags like v1.2.0-beta are pre-releases. GitHub's sidebar and
+          # releases/latest show full releases only.
+          prerelease: ${{ contains(env.TAG, '-') }}
+          make_latest: ${{ !contains(env.TAG, '-') }}
           files: release/*
           fail_on_unmatched_files: true
