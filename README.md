@@ -24,7 +24,7 @@ A small dock for Windows 11 that opens from the tray. The buds stay connected to
 
 <a href="docs/media/tutorial.mp4"><img src="docs/media/tutorial-poster.jpg" width="300" alt="Play the walkthrough video"></a>
 
-<sub><b><a href="docs/media/tutorial.mp4">Watch the 70-second walkthrough</a></b>, with voice-over and subtitles: the tray icon, the dock, phone audio, handing the buds over and back, and settings.</sub>
+<sub><b><a href="docs/media/tutorial.mp4">Watch the 30-second video</a></b>, with voice-over and subtitles: the dock, phone audio, a second phone joining, and handing the buds over and back.</sub>
 
 </div>
 
@@ -198,7 +198,7 @@ Rust and [Tauri 2](https://tauri.app), with a React 19 + TypeScript UI. Windows 
 
 The demo and screenshots above are recorded by [`scripts/record-demo.sh`](scripts/record-demo.sh). It starts the app in demo mode on a virtual display, clicks through the flow with `xdotool`, and captures it with `ffmpeg`, so every run of the script produces the same media.
 
-The walkthrough video is made the way [Ferry](https://github.com/ahkamboh/ferry)'s demo is: [`scripts/video/make.sh`](scripts/video/make.sh) speaks the lines in [`narrate.py`](scripts/video/narrate.py) with [Kokoro](https://github.com/thewh1teagle/kokoro-onnx), offline, then records the app in demo mode with every step held until its line has been spoken, so editing a line retimes the video. The pointer, the pulsing rings, the key badges, the taskbar and the subtitles are drawn on top by [`compose.py`](scripts/video/compose.py), not by BudsBridge.
+The video is drawn rather than screen-recorded, like [InverterBar](https://github.com/ahkamboh/inverterbar)'s, and narrated like [Ferry](https://github.com/ahkamboh/ferry)'s: [`scripts/video/make.sh`](scripts/video/make.sh) speaks the lines in [`narrate.py`](scripts/video/narrate.py) with [Kokoro](https://github.com/thewh1teagle/kokoro-onnx), offline, then headless Chromium renders [the stage](apps/desktop/src/video) frame by frame: the real dock component on a Windows 11 style desktop, fed by a scripted store instead of Windows. Each step waits for its line to be spoken, so editing a line retimes the video. The desktop, taskbar, pointer, rings, key badges and subtitles belong to the stage, not to BudsBridge.
 
 ```
 BudsBridge/
@@ -210,7 +210,7 @@ BudsBridge/
 │   └── src-tauri/           Tauri shell: window, tray, hotkey, autostart, commands
 ├── scripts/
 │   ├── record-demo.sh       records the README media in demo mode
-│   └── video/               the walkthrough video: voice, recording, composition
+│   └── video/               the video: voice-over and frame-by-frame rendering
 ├── docs/                    feasibility study, architecture, hardware checklist, releases
 └── .github/workflows/       CI and release
 ```

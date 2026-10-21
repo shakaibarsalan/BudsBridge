@@ -69,20 +69,20 @@ Re-run it whenever the UI changes.
 
 ## Walkthrough video
 
-`scripts/video/make.sh` builds `docs/media/tutorial.mp4` (1080 x 1350, about 70 s). It needs the
-tools above plus `dbus-launch` and Python 3 with `kokoro-onnx`, `numpy`, `Pillow` and
-`python-xlib`, and Kokoro's model files (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) in
-`~/.cache/budsbridge-video`:
+`scripts/video/make.sh` builds `docs/media/tutorial.mp4` (1080 x 1350, about 30 s). It needs
+`pnpm`, `ffmpeg`, and Python 3 with `kokoro-onnx`, `numpy` and `playwright`, plus Kokoro's model
+files (`kokoro-v1.0.onnx`, `voices-v1.0.bin`) in `~/.cache/budsbridge-video`:
 
 1. `narrate.py` speaks each line and writes the clips and their lengths to `target/video/voice`.
-2. `record.py` runs the app in demo mode on a virtual display and drives one step per line,
-   starting each once the previous line has been spoken. It writes the recording and a timeline
-   of the pointer, clicks, rings, key badges and camera.
-3. `compose.py` scales the recording into the frame, zooming in on the dock, draws the taskbar,
-   the overlays and the subtitles, and adds the voice.
+2. The stage, `apps/desktop/video.html` (`src/video/`), is the real dock on a drawn Windows 11
+   style desktop. `vite.video.config.ts` swaps `lib/api` for a scripted store, and
+   `src/video/scenario.ts` says what happens at each line.
+3. `render.py` opens the stage in headless Chromium and moves it to every frame's instant (state,
+   pointer, CSS and SVG animations) before taking a screenshot, so the result doesn't depend on
+   the machine's speed. It adds the voice and encodes the MP4. `--stills 3 9` saves single frames.
 
 To change what is said, edit `LINES` in `narrate.py`; to change what happens, edit the matching
-`step_…` function in `record.py`.
+step in `scenario.ts`.
 
 ## Layout
 
