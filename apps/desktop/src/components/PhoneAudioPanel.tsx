@@ -1,8 +1,10 @@
-import { bridgeStatusLabel } from "../lib/format";
-import type { BridgeState, SourceView } from "../lib/types";
+import { UNAVAILABLE_HINT, bridgeStatusLabel, unavailableLabel } from "../lib/format";
+import type { BridgeState, SourceView, UnavailablePhone } from "../lib/types";
 
 interface PhoneAudioPanelProps {
   phones: SourceView[] | null;
+  /** Paired phones Windows won't stream from. */
+  unavailable?: UnavailablePhone[];
   onToggle: (phone: SourceView, enabled: boolean) => void;
 }
 
@@ -14,7 +16,7 @@ const CARD_STATE: Record<BridgeState, string> = {
   streaming: "connected",
 };
 
-export function PhoneAudioPanel({ phones, onToggle }: PhoneAudioPanelProps) {
+export function PhoneAudioPanel({ phones, unavailable = [], onToggle }: PhoneAudioPanelProps) {
   return (
     <section className="panel" aria-labelledby="phone-title">
       <h2 id="phone-title">Phone audio</h2>
@@ -29,7 +31,7 @@ export function PhoneAudioPanel({ phones, onToggle }: PhoneAudioPanelProps) {
 
       {phones === null ? (
         <p className="muted">Looking for paired phones…</p>
-      ) : phones.length === 0 ? (
+      ) : phones.length + unavailable.length === 0 ? (
         <p className="muted">
           No phone is paired with this laptop yet. Pair it in Windows Settings → Bluetooth &amp;
           devices → Add device, and it shows up here.
@@ -66,8 +68,24 @@ export function PhoneAudioPanel({ phones, onToggle }: PhoneAudioPanelProps) {
               </label>
             </li>
           ))}
+          {unavailable.map((phone) => (
+            <li
+              key={`unavailable:${phone.name}`}
+              className="device device--unavailable"
+              aria-label={phone.name}
+            >
+              <div className="device__main">
+                <span className="device__dot" aria-hidden="true" />
+                <div className="device__text">
+                  <p className="device__name">{phone.name}</p>
+                  <p className="device__status">{unavailableLabel(phone.reason)}</p>
+                </div>
+              </div>
+            </li>
+          ))}
         </ul>
       )}
+      {unavailable.length > 0 && <p className="muted small">{UNAVAILABLE_HINT}</p>}
 
       <p className="muted small">
         Phone calls: Windows Phone Link can take your calls on the laptop, so they reach the buds

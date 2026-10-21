@@ -654,6 +654,16 @@ button {
   color: var(--text-2);
 }
 
+.dock-hint {
+  margin: 6px 2px 0;
+  line-height: 1.4;
+}
+
+.row--unavailable .row__name,
+.device--unavailable .device__name {
+  color: var(--text-2);
+}
+
 .dock__footer {
   display: flex;
   align-items: center;

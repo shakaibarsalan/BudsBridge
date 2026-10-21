@@ -12,7 +12,13 @@ import { useEffect, useRef, useState } from "react";
 
 import { api } from "../../lib/api";
 import { focusDevice, focusPhone, headline, soundSources } from "../../lib/focus";
-import { bridgeStatusLabel, isEngaged, statusLabel } from "../../lib/format";
+import {
+  UNAVAILABLE_HINT,
+  bridgeStatusLabel,
+  isEngaged,
+  statusLabel,
+  unavailableLabel,
+} from "../../lib/format";
 import type { DeviceView, SourceView } from "../../lib/types";
 import { useBudsBridge } from "../../lib/useBudsBridge";
 import { ExpandRow } from "./ExpandRow";
@@ -57,6 +63,7 @@ export function Dock() {
   const {
     devices,
     phones,
+    unavailablePhones,
     settings,
     info,
     error,
@@ -72,6 +79,8 @@ export function Dock() {
   const phoneList = phones ?? [];
   const device = focusDevice(deviceList, settings?.preferredDevice ?? null);
   const phone = focusPhone(phoneList);
+  // Shown on the tile when Windows offers no phone but one is paired.
+  const unavailable = unavailablePhones[0] ?? null;
   const sources = soundSources(device, phoneList);
   const { title, detail } = headline(device, phone);
   const problem = error ?? device?.lastError ?? phone?.lastError ?? null;
@@ -170,8 +179,8 @@ export function Dock() {
           <Tile
             icon={<Smartphone size={15} />}
             caption="Phone audio"
-            value={phone ? PHONE_TILE[phone.state] : "None"}
-            detail={phone?.name ?? "Pair in Windows"}
+            value={phone ? PHONE_TILE[phone.state] : unavailable ? "Unavailable" : "None"}
+            detail={phone?.name ?? unavailable?.name ?? "Pair in Windows"}
             tone={
               phone?.state === "streaming"
                 ? "phone"
@@ -179,8 +188,20 @@ export function Dock() {
                   ? "busy"
                   : "off"
             }
-            label={phone ? `Phone audio: ${bridgeStatusLabel(phone.state)}` : "No phone paired"}
-            onClick={phone ? () => togglePhone(phone, !phone.enabled) : undefined}
+            label={
+              phone
+                ? `Phone audio: ${bridgeStatusLabel(phone.state)}`
+                : unavailable
+                  ? `Phone audio unavailable for ${unavailable.name}. Show why`
+                  : "No phone paired"
+            }
+            onClick={
+              phone
+                ? () => togglePhone(phone, !phone.enabled)
+                : unavailable
+                  ? () => setOpen("phones")
+                  : undefined
+            }
           />
           <Tile
             icon={<Keyboard size={15} />}
@@ -238,11 +259,11 @@ export function Dock() {
 
         <ExpandRow
           title="Phones"
-          value={`${phoneList.length} paired`}
+          value={`${phoneList.length + unavailablePhones.length} paired`}
           open={open === "phones"}
           onToggle={() => toggleSection("phones")}
         >
-          {phoneList.length === 0 ? (
+          {phoneList.length + unavailablePhones.length === 0 ? (
             <p className="dock-empty">
               Pair your phone with this laptop in Windows Settings → Bluetooth &amp; devices.
             </p>
@@ -269,8 +290,18 @@ export function Dock() {
                   />
                 </li>
               ))}
+              {unavailablePhones.map((item) => (
+                <li key={`unavailable:${item.name}`} className="row row--unavailable" aria-label={item.name}>
+                  <span className="row__dot" aria-hidden="true" />
+                  <span className="row__text">
+                    <span className="row__name">{item.name}</span>
+                    <span className="row__state">{unavailableLabel(item.reason)}</span>
+                  </span>
+                </li>
+              ))}
             </ul>
           )}
+          {unavailablePhones.length > 0 && <p className="dock-empty dock-hint">{UNAVAILABLE_HINT}</p>}
         </ExpandRow>
       </section>
 

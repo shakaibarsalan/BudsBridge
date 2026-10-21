@@ -1,4 +1,10 @@
-import type { AudioProfile, BridgeState, ConnectionState, DeviceView } from "./types";
+import type {
+  AudioProfile,
+  BridgeState,
+  ConnectionState,
+  DeviceView,
+  UnavailableReason,
+} from "./types";
 
 const STATE_LABELS: Record<ConnectionState, string> = {
   connected: "Connected",
@@ -42,6 +48,20 @@ const BRIDGE_LABELS: Record<BridgeState, string> = {
 export function bridgeStatusLabel(state: BridgeState): string {
   return BRIDGE_LABELS[state];
 }
+
+const UNAVAILABLE_LABELS: Record<UnavailableReason, string> = {
+  noAudioService: "Windows doesn't offer its audio",
+  lowEnergyOnly: "Paired over Bluetooth LE only",
+};
+
+export function unavailableLabel(reason: UnavailableReason): string {
+  return UNAVAILABLE_LABELS[reason];
+}
+
+/** What to try when Windows won't stream from a paired phone. */
+export const UNAVAILABLE_HINT =
+  "Remove the phone in Windows Settings → Bluetooth & devices and pair it again from the laptop. " +
+  "If it still isn't offered, Copy diagnostics in settings shows what Windows reports.";
 
 /** Shortens a device name to fit a fixed-width label. */
 export function shortName(name: string, max = 13): string {

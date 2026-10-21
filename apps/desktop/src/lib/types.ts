@@ -25,6 +25,14 @@ export interface SourceView {
   lastError: string | null;
 }
 
+export type UnavailableReason = "noAudioService" | "lowEnergyOnly";
+
+/** A paired phone that can't stream to this laptop, listed with the reason. */
+export interface UnavailablePhone {
+  name: string;
+  reason: UnavailableReason;
+}
+
 export interface ReconnectPolicy {
   initialDelayMs: number;
   maxDelayMs: number;

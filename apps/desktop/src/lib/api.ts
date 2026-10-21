@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen, type UnlistenFn } from "@tauri-apps/api/event";
 
-import type { AppInfo, DeviceView, Settings, SourceView } from "./types";
+import type { AppInfo, DeviceView, Settings, SourceView, UnavailablePhone } from "./types";
 
 export const DEVICES_CHANGED = "devices-changed";
 export const SETTINGS_CHANGED = "settings-changed";
@@ -23,6 +23,8 @@ export const api = {
     invoke<void>("set_source_enabled", { id, enabled }),
   onSourcesChanged: (handler: (sources: SourceView[]) => void): Promise<UnlistenFn> =>
     listen<SourceView[]>(SOURCES_CHANGED, (event) => handler(event.payload)),
+  /** Paired phones Windows won't stream audio from. */
+  listUnavailablePhones: () => invoke<UnavailablePhone[]>("list_unavailable_phones"),
   /** Opens the full window (settings) and closes the dock. */
   openSettings: () => invoke<void>("open_settings"),
   quitApp: () => invoke<void>("quit_app"),

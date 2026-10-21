@@ -2,13 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 
 import { api } from "./api";
 import { isEngaged } from "./format";
-import type { AppInfo, DeviceView, Settings, SourceView } from "./types";
+import type { AppInfo, DeviceView, Settings, SourceView, UnavailablePhone } from "./types";
 import { useLiveList } from "./useLiveList";
 
 /** Everything both windows show, kept in sync with the Rust runtimes, plus the actions on it. */
 export function useBudsBridge() {
   const { items: devices, error: loadError } = useLiveList(api.listDevices, api.onDevicesChanged);
   const { items: phones } = useLiveList(api.listSources, api.onSourcesChanged);
+  const [unavailablePhones, setUnavailablePhones] = useState<UnavailablePhone[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -19,6 +20,26 @@ export function useBudsBridge() {
     const unlisten = api.onSettingsChanged(setSettings);
     return () => void unlisten.then((stop) => stop());
   }, []);
+
+  // Pairing changes don't send events, so check again on every phone update
+  // and whenever the window is shown.
+  useEffect(() => {
+    let active = true;
+    const load = () => {
+      api
+        .listUnavailablePhones()
+        .then((list) => {
+          if (active) setUnavailablePhones(list);
+        })
+        .catch((err: unknown) => console.warn("listing unavailable phones failed", err));
+    };
+    load();
+    window.addEventListener("focus", load);
+    return () => {
+      active = false;
+      window.removeEventListener("focus", load);
+    };
+  }, [phones]);
 
   useEffect(() => {
     document.documentElement.dataset.backdrop = info?.mica ? "mica" : "solid";
@@ -66,6 +87,7 @@ export function useBudsBridge() {
   return {
     devices,
     phones,
+    unavailablePhones,
     settings,
     info,
     error: actionError ?? loadError,

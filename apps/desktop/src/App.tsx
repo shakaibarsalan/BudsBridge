@@ -8,6 +8,7 @@ export function App() {
   const {
     devices,
     phones,
+    unavailablePhones,
     settings,
     info,
     error,
@@ -54,7 +55,7 @@ export function App() {
           )}
         </section>
 
-        <PhoneAudioPanel phones={phones} onToggle={togglePhone} />
+        <PhoneAudioPanel phones={phones} unavailable={unavailablePhones} onToggle={togglePhone} />
 
         {settings && (
           <SettingsPanel

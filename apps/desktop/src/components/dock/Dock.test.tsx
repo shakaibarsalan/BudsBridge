@@ -19,6 +19,8 @@ vi.mock("../../lib/api", () => ({
     listSources: vi.fn(),
     setSourceEnabled: vi.fn(),
     onSourcesChanged: vi.fn(),
+    listUnavailablePhones: vi.fn(),
+    diagnostics: vi.fn(),
     openSettings: vi.fn(),
     quitApp: vi.fn(),
     dockResize: vi.fn(),
@@ -59,6 +61,7 @@ beforeEach(() => {
   mocked.getSettings.mockResolvedValue(settings);
   mocked.listDevices.mockResolvedValue([tws, speaker]);
   mocked.listSources.mockResolvedValue([pixel]);
+  mocked.listUnavailablePhones.mockResolvedValue([]);
   for (const fn of [
     mocked.connect,
     mocked.disconnect,
@@ -156,6 +159,20 @@ describe("Dock", () => {
     render(<Dock />);
     expect(await screen.findByText("No buds paired")).toBeInTheDocument();
     expect(screen.getByText("0")).toBeInTheDocument();
+  });
+
+  it("lists a paired phone Windows won't stream from, with what to do", async () => {
+    mocked.listSources.mockResolvedValue([]);
+    mocked.listUnavailablePhones.mockResolvedValue([{ name: "Pixel 7", reason: "noAudioService" }]);
+    render(<Dock />);
+    const tile = await screen.findByRole("button", { name: "Phone audio unavailable for Pixel 7. Show why" });
+    expect(screen.getByRole("button", { name: /Phones/ })).toHaveTextContent("1 paired");
+
+    await userEvent.click(tile);
+    const row = screen.getByRole("listitem", { name: "Pixel 7" });
+    expect(row).toHaveTextContent("Windows doesn't offer its audio");
+    expect(within(row).queryByRole("switch")).not.toBeInTheDocument();
+    expect(screen.getByText(/pair it again from the laptop/)).toBeInTheDocument();
   });
 
   it("shows the latest problem as a banner", async () => {

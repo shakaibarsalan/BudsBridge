@@ -43,4 +43,19 @@ describe("PhoneAudioPanel", () => {
     render(<PhoneAudioPanel phones={null} onToggle={vi.fn()} />);
     expect(screen.getByText("Looking for paired phones…")).toBeInTheDocument();
   });
+
+  it("lists phones Windows won't stream from, without a switch", () => {
+    render(
+      <PhoneAudioPanel
+        phones={[]}
+        unavailable={[{ name: "Galaxy", reason: "lowEnergyOnly" }]}
+        onToggle={vi.fn()}
+      />,
+    );
+    const row = screen.getByRole("listitem", { name: "Galaxy" });
+    expect(row).toHaveTextContent("Paired over Bluetooth LE only");
+    expect(screen.queryByRole("switch")).not.toBeInTheDocument();
+    expect(screen.queryByText(/No phone is paired/)).not.toBeInTheDocument();
+    expect(screen.getByText(/pair it again from the laptop/)).toBeInTheDocument();
+  });
 });

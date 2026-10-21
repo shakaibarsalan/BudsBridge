@@ -19,6 +19,8 @@ vi.mock("./lib/api", () => ({
     listSources: vi.fn(),
     setSourceEnabled: vi.fn(),
     onSourcesChanged: vi.fn(),
+    listUnavailablePhones: vi.fn(),
+    diagnostics: vi.fn(),
   },
 }));
 
@@ -59,6 +61,7 @@ const phone: SourceView = {
 };
 
 beforeEach(() => {
+  mocked.listUnavailablePhones.mockResolvedValue([]);
   mocked.appInfo.mockResolvedValue(info);
   mocked.getSettings.mockResolvedValue(settings);
   mocked.listDevices.mockResolvedValue([buds]);
