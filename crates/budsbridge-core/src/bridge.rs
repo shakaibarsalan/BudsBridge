@@ -34,11 +34,50 @@ impl AudioSource {
     }
 }
 
+/// Why a paired phone can't stream to this laptop.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub enum UnavailableReason {
+    /// Paired, but the system offers no audio from it.
+    NoAudioService,
+    /// Paired over Bluetooth Low Energy only, which carries no phone audio.
+    LowEnergyOnly,
+}
+
+/// A paired phone that can't stream to this laptop. Listed with the reason so
+/// a phone never just goes missing from the UI.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UnavailableSource {
+    pub name: String,
+    pub reason: UnavailableReason,
+}
+
+impl UnavailableSource {
+    pub fn new(name: impl Into<String>, reason: UnavailableReason) -> Self {
+        Self {
+            name: name.into(),
+            reason,
+        }
+    }
+}
+
 /// Access to devices that can stream audio *to* this laptop.
 pub trait SourceBackend: Send + Sync {
     fn name(&self) -> &'static str;
 
     fn list_sources(&self) -> Result<Vec<AudioSource>, BackendError>;
+
+    /// Paired phones that can't stream to this laptop. Best effort: empty when
+    /// the backend can't tell.
+    fn unavailable(&self) -> Vec<UnavailableSource> {
+        Vec::new()
+    }
+
+    /// What the system reports about phones, as plain text for bug reports.
+    fn diagnostics(&self) -> String {
+        String::new()
+    }
 
     /// Starts receiving audio from the device. Blocks until the stream is up
     /// or the attempt has failed.
@@ -447,6 +486,21 @@ mod tests {
                 "state": "streaming",
                 "lastError": null
             }])
+        );
+    }
+
+    #[test]
+    fn unavailable_phones_serialize_in_camel_case() {
+        let phones = [
+            UnavailableSource::new("Pixel", UnavailableReason::NoAudioService),
+            UnavailableSource::new("Galaxy", UnavailableReason::LowEnergyOnly),
+        ];
+        assert_eq!(
+            serde_json::to_value(phones).unwrap(),
+            serde_json::json!([
+                { "name": "Pixel", "reason": "noAudioService" },
+                { "name": "Galaxy", "reason": "lowEnergyOnly" }
+            ])
         );
     }
 }

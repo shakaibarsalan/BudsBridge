@@ -19,7 +19,9 @@ pub mod runtime;
 pub mod settings;
 
 pub use backend::{BackendError, ChangeNotifier, DeviceBackend, Watch};
-pub use bridge::{AudioSource, BridgeState, SourceBackend, SourceView};
+pub use bridge::{
+    AudioSource, BridgeState, SourceBackend, SourceView, UnavailableReason, UnavailableSource,
+};
 pub use bridge_runtime::{BridgeHandle, BridgeRuntime, SourceListener};
 pub use controller::{Action, Command, Controller, ControllerConfig, ControllerError, DeviceView};
 pub use device::{AudioDevice, AudioProfile, ConnectionState, DeviceId};

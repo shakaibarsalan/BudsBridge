@@ -5,7 +5,7 @@ use std::thread;
 use std::time::Duration;
 
 use crate::backend::{BackendError, ChangeNotifier, DeviceBackend, Watch};
-use crate::bridge::{AudioSource, SourceBackend};
+use crate::bridge::{AudioSource, SourceBackend, UnavailableSource};
 use crate::controller::Action;
 use crate::device::{AudioDevice, AudioProfile, DeviceId};
 
@@ -183,6 +183,7 @@ impl DeviceBackend for FakeBackend {
 #[derive(Clone)]
 pub struct FakeSourceBackend {
     sources: Arc<Mutex<Vec<AudioSource>>>,
+    unavailable: Vec<UnavailableSource>,
     notifier: Arc<Mutex<Option<ChangeNotifier>>>,
     behavior: Arc<Mutex<FakeBehavior>>,
     latency: Duration,
@@ -192,6 +193,7 @@ impl FakeSourceBackend {
     pub fn new(sources: Vec<AudioSource>) -> Self {
         Self {
             sources: Arc::new(Mutex::new(sources)),
+            unavailable: Vec::new(),
             notifier: Arc::new(Mutex::new(None)),
             behavior: Arc::new(Mutex::new(FakeBehavior::Succeed)),
             latency: Duration::ZERO,
@@ -206,6 +208,12 @@ impl FakeSourceBackend {
 
     pub fn with_latency(mut self, latency: Duration) -> Self {
         self.latency = latency;
+        self
+    }
+
+    /// Paired phones that can't stream, as [`SourceBackend::unavailable`] reports them.
+    pub fn with_unavailable(mut self, unavailable: Vec<UnavailableSource>) -> Self {
+        self.unavailable = unavailable;
         self
     }
 
@@ -255,6 +263,14 @@ impl SourceBackend for FakeSourceBackend {
 
     fn list_sources(&self) -> Result<Vec<AudioSource>, BackendError> {
         Ok(lock(&self.sources).clone())
+    }
+
+    fn unavailable(&self) -> Vec<UnavailableSource> {
+        self.unavailable.clone()
+    }
+
+    fn diagnostics(&self) -> String {
+        "Demo backend: simulated phones, nothing read from the system.".to_owned()
     }
 
     fn open(&self, id: &DeviceId) -> Result<(), BackendError> {
