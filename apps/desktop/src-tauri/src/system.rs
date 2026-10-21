@@ -26,11 +26,14 @@ pub fn apply(app: &AppHandle, settings: &Settings) -> Vec<String> {
 
 fn sync_autostart(app: &AppHandle, wanted: bool) -> Result<(), String> {
     let launcher = app.autolaunch();
-    let enabled = launcher.is_enabled().unwrap_or(!wanted);
-    let result = match (wanted, enabled) {
-        (true, false) => launcher.enable(),
-        (false, true) => launcher.disable(),
-        _ => Ok(()),
+    let result = if wanted {
+        // Always (re)write it, so it points at this copy of BudsBridge even
+        // if an older copy elsewhere registered itself first.
+        launcher.enable()
+    } else if launcher.is_enabled().unwrap_or(true) {
+        launcher.disable()
+    } else {
+        Ok(())
     };
     result.map_err(|err| format!("Could not update Start with Windows: {err}"))
 }
