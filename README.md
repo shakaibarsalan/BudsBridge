@@ -145,7 +145,7 @@ The reasoning behind every choice, including what is impossible, is in [docs/FEA
 |---|---|
 | Device list, connect/disconnect, tray, hotkey, auto-reconnect, start with Windows | built; device listing confirmed on real hardware, switching awaiting the [hardware check](docs/HARDWARE_TESTING.md) |
 | Bridge mode: phone audio through the laptop over Bluetooth | built and working on the first real test (Windows 11 laptop, OPPO A83, TWS buds); delay and stutter not measured yet |
-| Final UI from the reference design | waiting on the design |
+| Tray dock and settings window in the InverterBar style | built |
 | Phone audio over USB or Wi-Fi ADB (bundled scrcpy, audio only) | planned |
 | Audio sources panel with per-source volume and a latency indicator | planned |
 | Priority and ducking between laptop and phone audio | planned |
@@ -153,6 +153,7 @@ The reasoning behind every choice, including what is impossible, is in [docs/FEA
 ## Honest notes
 
 - **Tested on one real setup so far.** On a Windows 11 laptop with TWS buds and an OPPO A83 Android phone, BudsBridge lists the paired devices correctly and bridge mode plays the phone through the laptop into the buds. Delay and stutter haven't been measured yet, and the rest of the [hardware checklist](docs/HARDWARE_TESTING.md) is still to run; this README will be updated with what it finds.
+- **Not every phone works with Windows' phone audio.** On the same laptop a Pixel 7 was listed but its audio never started, and after re-pairing Windows stopped offering it at all, while the OPPO A83 works. A user of another app built on the same Windows feature reports the same with a Pixel 7. BudsBridge now lists such a phone with the reason instead of hiding it, and **Copy diagnostics** in settings shows what Windows reports, so the cause can be found.
 - **Bridge mode is "dual connectivity" through the laptop, not in the buds.** The buds still hold one link, to the laptop. You hear the phone only while the laptop is on and in range; away from it, hand the buds to the phone.
 - **Phone audio arrives a little late**, roughly 0.2–0.4 s, because it makes two Bluetooth hops. Fine for music and podcasts; lip-sync is off if you watch a video on the phone's own screen.
 - **Two Bluetooth audio streams at once can stutter on some laptops**, because one radio carries both. Item B3 of the [hardware checklist](docs/HARDWARE_TESTING.md) checks yours.

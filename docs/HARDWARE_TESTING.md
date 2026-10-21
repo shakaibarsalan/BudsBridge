@@ -67,6 +67,10 @@ paired.) Keep the buds connected to the laptop.
 If B2 stays on *Waiting*, open the phone's Bluetooth settings, tap the laptop, and make sure
 **Media audio** is allowed for it.
 
+If the phone is missing, or listed with *Windows doesn't offer its audio*, open settings →
+**Troubleshooting → Copy diagnostics** and paste the text into your results. It shows which
+Bluetooth services Windows set up for each paired phone.
+
 ## 4. Results
 
 | Item | Value |
@@ -82,3 +86,4 @@ If B2 stays on *Waiting*, open the phone's Bluetooth settings, tap the laptop, a
 | B3: both at once, any stutter? | |
 | B4: rough delay | |
 | B1–B8 failures (number + what happened) | |
+| Diagnostics text, if a phone didn't work | |
