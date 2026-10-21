@@ -150,7 +150,7 @@ export function Dock() {
           )}
         </div>
 
-        <FlowHero device={device} phone={phone} />
+        <FlowHero device={device} phones={phoneList} />
 
         <div className="count">
           <span className="count__number">{sources}</span>

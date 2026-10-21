@@ -102,6 +102,25 @@ describe("Dock", () => {
     expect(screen.getByRole("button", { name: /Phone audio: Playing phone audio/ })).toBeInTheDocument();
   });
 
+  it("shows every phone that plays, and counts them", async () => {
+    render(<Dock />);
+    await screen.findByText("Buds on this laptop");
+    const oppo: SourceView = { ...pixel, id: "oppo", name: "OPPO A83" };
+    act(() =>
+      pushSources([
+        { ...oppo, enabled: true, state: "streaming" },
+        { ...pixel, enabled: true, state: "streaming" },
+      ]),
+    );
+    expect(screen.getByText("Hearing 2 phones + laptop")).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getByText("2 phones + laptop")).toBeInTheDocument();
+    expect(screen.getByText("2 phones")).toBeInTheDocument();
+    expect(screen.getByRole("img")).toHaveAccessibleName(
+      /OPPO A83: playing phone audio\. Pixel 7: playing phone audio\. TWS: connected/,
+    );
+  });
+
   it("controls everything from the tiles", async () => {
     render(<Dock />);
     await userEvent.click(await screen.findByRole("button", { name: "Buds: Connected" }));

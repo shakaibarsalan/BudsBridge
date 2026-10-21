@@ -296,130 +296,299 @@ button {
   animation: spin 1.1s linear infinite;
 }
 
-/* flow hero */
+/* hero: phone(s) → laptop → buds */
 
-.flow {
+.hero {
   display: block;
   width: 100%;
   height: auto;
-  margin: 6px 0 2px;
+  margin: 4px 0 0;
+  overflow: visible;
 }
 
-.flow__node rect,
-.flow__node circle,
-.flow__node path {
-  fill: var(--fill-2);
+.hero-link {
+  fill: none;
   stroke: var(--line-strong);
-  stroke-width: 1.3;
-  transition:
-    stroke 0.3s,
-    fill 0.3s;
+  stroke-width: 1.4;
+  stroke-linecap: round;
+  transition: stroke 0.3s;
 }
 
-.flow__node .flow__inset {
-  fill: var(--fill-1);
-  stroke: var(--line);
+.hero-link--phone {
+  stroke: color-mix(in srgb, var(--phone) 45%, transparent);
+  stroke-width: 2;
+}
+
+.hero-link--buds {
+  stroke: color-mix(in srgb, var(--accent) 45%, transparent);
+  stroke-width: 2;
+}
+
+.hero-link--busy {
+  stroke: color-mix(in srgb, var(--busy) 40%, transparent);
+  stroke-width: 2;
+}
+
+.hero-pulses--phone {
+  color: var(--phone);
+}
+
+.hero-pulses--buds {
+  color: var(--accent);
+}
+
+.hero-pulses--busy {
+  color: var(--busy);
+}
+
+.hero-pulse__halo {
+  fill: currentColor;
+  opacity: 0.28;
+}
+
+.hero-pulse__core {
+  fill: color-mix(in srgb, currentColor 45%, #ffffff);
+  filter: drop-shadow(0 0 2px currentColor);
+}
+
+/* phone */
+
+.hero-phone__body {
+  fill: #23262e;
+  stroke: rgb(255 255 255 / 0.22);
   stroke-width: 1;
 }
 
-.flow__node--phone rect:first-child {
+.hero-phone__screen {
+  fill: #0e1014;
+}
+
+.hero-phone__camera {
+  fill: #000;
+  opacity: 0.7;
+}
+
+.hero-phone--on .hero-phone__body {
   stroke: var(--phone);
+  filter: drop-shadow(0 0 5px color-mix(in srgb, var(--phone) 45%, transparent));
 }
 
-.flow__node--buds circle,
-.flow__node--buds rect {
-  fill: color-mix(in srgb, var(--accent) 22%, transparent);
-  stroke: var(--accent);
-}
-
-.flow__node--laptop > rect:first-child {
-  stroke: color-mix(in srgb, var(--accent) 70%, var(--line-strong));
-}
-
-.flow__notes path {
-  fill: none;
-  stroke: var(--phone);
-  stroke-width: 1.6;
-  stroke-linecap: round;
-}
-
-.flow__notes circle {
-  fill: var(--phone);
-  stroke: none;
-}
-
-.flow__link {
-  stroke: var(--line-strong);
-  stroke-width: 1.6;
-  stroke-dasharray: 2 6;
-  stroke-linecap: round;
-}
-
-.flow__link--phone,
-.flow__link--buds,
-.flow__link--busy {
-  stroke-width: 2.4;
-  stroke-dasharray: 3 7;
-  animation: flow 0.9s linear infinite;
-}
-
-.flow__link--phone {
-  stroke: var(--phone);
-  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--phone) 60%, transparent));
-}
-
-.flow__link--buds {
-  stroke: var(--accent);
-  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--accent) 60%, transparent));
-}
-
-.flow__link--busy {
+.hero-phone--busy .hero-phone__body {
   stroke: var(--busy);
-  animation-duration: 1.8s;
 }
 
-.flow__eq rect {
-  fill: var(--line-strong);
-  stroke: none;
+.hero-stop--phone-a {
+  stop-color: color-mix(in srgb, var(--phone) 55%, #06261a);
+}
+
+.hero-stop--phone-b {
+  stop-color: #0b1b2a;
+}
+
+.hero-phone__note {
+  opacity: 0.95;
+}
+
+.hero-phone__note path {
+  fill: none;
+  stroke: #ffffff;
+  stroke-width: 1.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.hero-phone__note ellipse {
+  fill: #ffffff;
+}
+
+.hero-phone__track {
+  fill: rgb(255 255 255 / 0.25);
+}
+
+.hero-phone__progress {
+  fill: #ffffff;
   transform-box: fill-box;
-  transform-origin: center bottom;
-  transform: scaleY(0.25);
+  transform-origin: left;
+  animation: hero-progress 8s linear infinite;
 }
 
-.flow__eq--on rect {
-  fill: var(--accent);
-  animation: eq 1.1s ease-in-out infinite;
+.hero-phone__line {
+  fill: rgb(255 255 255 / 0.4);
 }
 
-.flow__eq--on rect:nth-child(2) {
-  animation-delay: -0.35s;
+.hero-more circle {
+  fill: var(--fill-hover);
+  stroke: var(--line-strong);
 }
 
-.flow__eq--on rect:nth-child(3) {
-  animation-delay: -0.7s;
-}
-
-.flow__eq--on rect:nth-child(4) {
-  animation-delay: -0.2s;
-}
-
-.flow__eq--on rect:nth-child(5) {
-  animation-delay: -0.55s;
-}
-
-.flow__labels text {
+.hero-more text {
+  font-size: 9px;
+  font-weight: 700;
+  fill: var(--text);
   text-anchor: middle;
 }
 
-.flow__name {
+/* laptop */
+
+.hero-laptop__lid {
+  fill: #1d2027;
+  stroke: rgb(255 255 255 / 0.18);
+  stroke-width: 1;
+  transition: stroke 0.3s;
+}
+
+.hero-laptop__screen {
+  fill: #0c0e12;
+}
+
+.hero-laptop--on .hero-laptop__lid {
+  stroke: color-mix(in srgb, var(--accent) 70%, transparent);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 40%, transparent));
+}
+
+.hero-stop--screen-a {
+  stop-color: #0f2342;
+}
+
+.hero-stop--screen-b {
+  stop-color: #1b1338;
+}
+
+.hero-laptop__base {
+  fill: #3a3e47;
+  stroke: rgb(255 255 255 / 0.12);
+  stroke-width: 0.8;
+}
+
+.hero-laptop__notch {
+  fill: rgb(0 0 0 / 0.35);
+}
+
+.hero-wave {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.hero-wave--idle {
+  stroke: rgb(255 255 255 / 0.14);
+  stroke-width: 1.5;
+}
+
+.hero-wave--laptop {
+  stroke: var(--accent);
+  stroke-width: 2.2;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--accent) 70%, transparent));
+  animation: hero-wave-laptop 1.6s linear infinite;
+}
+
+.hero-wave--phone {
+  stroke: var(--phone);
+  stroke-width: 1.8;
+  opacity: 0.9;
+  filter: drop-shadow(0 0 3px color-mix(in srgb, var(--phone) 70%, transparent));
+  animation: hero-wave-phone 1.1s linear infinite;
+}
+
+/* buds: two earbuds that slowly orbit each other while connected */
+
+.hero-bud__shell {
+  stroke: rgb(0 0 0 / 0.18);
+  stroke-width: 0.6;
+}
+
+.hero-bud__stem {
+  stroke: rgb(0 0 0 / 0.14);
+  stroke-width: 0.5;
+}
+
+.hero-bud__tip {
+  fill: #a9afb8;
+}
+
+.hero-bud__grille {
+  fill: #2a2e35;
+}
+
+.hero-bud__shine {
+  fill: #ffffff;
+  opacity: 0.85;
+}
+
+.hero-bud--a {
+  transform: translate(-11px, 0);
+}
+
+.hero-bud--b {
+  transform: translate(11px, 0);
+}
+
+.hero-bud--back {
+  opacity: 0;
+}
+
+.hero-buds:not(.hero-buds--on) .hero-bud--front {
+  opacity: 0.5;
+}
+
+.hero-buds--busy .hero-bud--front {
+  animation: hero-busy 1.4s ease-in-out infinite;
+}
+
+.hero-buds--on .hero-bud {
+  animation:
+    hero-orbit 7s linear infinite,
+    hero-front 7s step-end infinite;
+}
+
+.hero-buds--on .hero-bud--back {
+  animation-name: hero-orbit, hero-back;
+}
+
+.hero-buds--on .hero-bud--b {
+  animation-delay: -3.5s;
+}
+
+.hero-buds__glow {
+  fill: var(--accent);
+  opacity: 0;
+  filter: blur(3px);
+  transition: opacity 0.4s;
+}
+
+.hero-buds--on .hero-buds__glow {
+  opacity: 0.35;
+}
+
+.hero-labels text {
+  text-anchor: middle;
+}
+
+.hero-name {
   font-size: 11px;
   font-weight: 600;
   fill: var(--text);
 }
 
-.flow__state {
+.hero-state {
   font-size: 10px;
   fill: var(--text-2);
+}
+
+@media (prefers-color-scheme: light) {
+  .hero-phone__body {
+    fill: #dfe2e8;
+    stroke: rgb(0 0 0 / 0.18);
+  }
+
+  .hero-laptop__lid {
+    fill: #2b2e35;
+    stroke: rgb(0 0 0 / 0.25);
+  }
+
+  .hero-laptop__base {
+    fill: #c9ccd3;
+    stroke: rgb(0 0 0 / 0.15);
+  }
 }
 
 /* big number */
@@ -923,19 +1092,93 @@ button {
   font: inherit;
 }
 
-@keyframes flow {
-  to {
-    stroke-dashoffset: -10;
+@keyframes hero-orbit {
+  0% {
+    transform: translate(-11.00px, 0.00px) rotate(-6.0deg) scale(1.000);
+  }
+  8.33% {
+    transform: translate(-9.53px, 1.25px) rotate(-5.2deg) scale(1.065);
+  }
+  16.67% {
+    transform: translate(-5.50px, 2.17px) rotate(-3.0deg) scale(1.113);
+  }
+  25% {
+    transform: translate(-0.00px, 2.50px) rotate(-0.0deg) scale(1.130);
+  }
+  33.33% {
+    transform: translate(5.50px, 2.17px) rotate(3.0deg) scale(1.113);
+  }
+  41.67% {
+    transform: translate(9.53px, 1.25px) rotate(5.2deg) scale(1.065);
+  }
+  50% {
+    transform: translate(11.00px, 0.00px) rotate(6.0deg) scale(1.000);
+  }
+  58.33% {
+    transform: translate(9.53px, -1.25px) rotate(5.2deg) scale(0.935);
+  }
+  66.67% {
+    transform: translate(5.50px, -2.17px) rotate(3.0deg) scale(0.887);
+  }
+  75% {
+    transform: translate(0.00px, -2.50px) rotate(0.0deg) scale(0.870);
+  }
+  83.33% {
+    transform: translate(-5.50px, -2.17px) rotate(-3.0deg) scale(0.887);
+  }
+  91.67% {
+    transform: translate(-9.53px, -1.25px) rotate(-5.2deg) scale(0.935);
+  }
+  100% {
+    transform: translate(-11.00px, -0.00px) rotate(-6.0deg) scale(1.000);
   }
 }
 
-@keyframes eq {
-  0%,
-  100% {
-    transform: scaleY(0.3);
+/* Which copy of a bud shows: the front one for the half turn in front. */
+@keyframes hero-front {
+  0% {
+    opacity: 1;
   }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes hero-back {
+  0% {
+    opacity: 0;
+  }
+  50%,
+  100% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes hero-busy {
   50% {
-    transform: scaleY(1);
+    opacity: 0.9;
+  }
+}
+
+@keyframes hero-wave-laptop {
+  to {
+    transform: translateX(-24px);
+  }
+}
+
+@keyframes hero-wave-phone {
+  to {
+    transform: translateX(-17px);
+  }
+}
+
+@keyframes hero-progress {
+  from {
+    transform: scaleX(0.12);
+  }
+  to {
+    transform: scaleX(1);
   }
 }
 
@@ -950,5 +1193,9 @@ button {
   *::before,
   *::after {
     animation: none !important;
+  }
+
+  .hero-pulses {
+    display: none;
   }
 }
