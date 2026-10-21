@@ -172,6 +172,7 @@ export function FlowHero({ device, phones }: FlowHeroProps) {
     clip: `${uid}-clip`,
     shell: `${uid}-shell`,
     stem: `${uid}-stem`,
+    glow: `${uid}-glow`,
   };
 
   const budsOn = device?.state === "connected";
@@ -235,6 +236,10 @@ export function FlowHero({ device, phones }: FlowHeroProps) {
           <stop offset="0" stopColor="#ffffff" />
           <stop offset="0.7" stopColor="#eef0f3" />
           <stop offset="1" stopColor="#c9cdd4" />
+        </radialGradient>
+        <radialGradient id={ids.glow}>
+          <stop offset="0" className="hero-stop--glow" />
+          <stop offset="1" className="hero-stop--glow" stopOpacity="0" />
         </radialGradient>
         <linearGradient id={ids.stem} x1="0" y1="0" x2="1" y2="0">
           <stop offset="0" stopColor="#ffffff" />
@@ -308,7 +313,7 @@ export function FlowHero({ device, phones }: FlowHeroProps) {
         className={`hero-buds ${budsOn ? "hero-buds--on" : budsBusy ? "hero-buds--busy" : ""}`}
         transform={`translate(${BUDS.x} ${BUDS.y})`}
       >
-        <ellipse className="hero-buds__glow" cx="0" cy="27" rx="22" ry="4" />
+        <ellipse className="hero-buds__glow" cx="0" cy="27" rx="24" ry="5" fill={`url(#${ids.glow})`} />
         <Bud side="a" layer="back" ids={ids} />
         <Bud side="b" layer="back" ids={ids} />
         <Bud side="a" layer="front" ids={ids} />

@@ -549,14 +549,16 @@ button {
 }
 
 .hero-buds__glow {
-  fill: var(--accent);
   opacity: 0;
-  filter: blur(3px);
   transition: opacity 0.4s;
 }
 
+.hero-stop--glow {
+  stop-color: var(--accent);
+}
+
 .hero-buds--on .hero-buds__glow {
-  opacity: 0.35;
+  opacity: 0.6;
 }
 
 .hero-labels text {
