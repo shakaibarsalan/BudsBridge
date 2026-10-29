@@ -1,0 +1,30 @@
+{
+  "tag": "v0.3.6",
+  "name": "BudsBridge v0.3.6",
+  "publishedAt": "2026-10-21T11:58:33Z",
+  "url": "https://github.com/shakaibarsalan/BudsBridge/releases/tag/v0.3.6",
+  "body": "**Your name, not \"github\".** Windows showed the app's publisher as *github*, taken from its\nidentifier, in the file's details and in **Settings → Apps**. It now says Muhammad Shakaib Arsalan.\n\n### Download\n\n| File | What it is |\n|---|---|\n| `BudsBridge.exe` | Single file, no installer. Download and open it |\n| `BudsBridge-0.3.6-windows-x64-setup.exe` | Installer for your user only: Start menu entry and uninstaller, no admin prompt |\n| `SHA256SUMS.txt` | Checksums for both files |\n\nThe build isn't code-signed yet, so SmartScreen warns once: **More info → Run anyway**. Where Smart\nApp Control is on, Windows blocks unsigned apps completely.\n\n### Code signing is on its way\n\nBudsBridge is applying for free code signing from SignPath Foundation. The release workflow is\nready for it: it now signs the program first, builds the installer around the signed copy, then\nsigns the installer, as soon as the project is accepted. See the code signing policy in the README.\n\n### Updating\n\nOpening the new `BudsBridge.exe` while 0.3.1 or newer runs switches to the new one by itself.\n\n---\n\n[Code signing policy](https://github.com/shakaibarsalan/BudsBridge#code-signing-policy)\n",
+  "assets": [
+    {
+      "name": "BudsBridge-0.3.6-windows-x64-setup.exe",
+      "size": 1464182,
+      "url": "https://github.com/shakaibarsalan/BudsBridge/releases/download/v0.3.6/BudsBridge-0.3.6-windows-x64-setup.exe",
+      "downloads": 2,
+      "sha256": "947427f78e874d7e2c035e740c64d23a89ff26345eb8ad80c11f5839139a4ed7"
+    },
+    {
+      "name": "BudsBridge.exe",
+      "size": 3912704,
+      "url": "https://github.com/shakaibarsalan/BudsBridge/releases/download/v0.3.6/BudsBridge.exe",
+      "downloads": 1,
+      "sha256": "427d5d382a6f5620b1d281e33ecc09ce495d5ca3cebb333f528b74abd213a21a"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "size": 186,
+      "url": "https://github.com/shakaibarsalan/BudsBridge/releases/download/v0.3.6/SHA256SUMS.txt",
+      "downloads": 3,
+      "sha256": null
+    }
+  ]
+}
