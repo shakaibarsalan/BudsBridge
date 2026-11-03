@@ -1,15 +1,15 @@
-// The BudsBridge help agent, run by Talkfront. It only loads when a public widget key
-// is set at build time (VITE_TALKFRONT_KEY), so the site works the same without it.
+// The BudsBridge help agent, run by Halochime. It only loads when a public widget key
+// is set at build time (VITE_HALOCHIME_KEY), so the site works the same without it.
 
-type TalkfrontApi = { q?: unknown[][]; open?: () => void; close?: () => void };
+type HalochimeApi = { q?: unknown[][]; open?: () => void; close?: () => void };
 declare global {
   interface Window {
-    Talkfront?: TalkfrontApi;
+    Halochime?: HalochimeApi;
   }
 }
 
-const APP_URL = (import.meta.env.VITE_TALKFRONT_URL as string | undefined) ?? "https://talkfront-ai.vercel.app";
-const KEY = import.meta.env.VITE_TALKFRONT_KEY as string | undefined;
+const APP_URL = (import.meta.env.VITE_HALOCHIME_URL as string | undefined) ?? "https://halochime.vercel.app";
+const KEY = import.meta.env.VITE_HALOCHIME_KEY as string | undefined;
 
 export const supportEnabled = !!KEY;
 
@@ -17,12 +17,12 @@ export const supportEnabled = !!KEY;
 export function loadSupport() {
   if (!KEY) return;
   const add = () => {
-    if (document.querySelector("script[data-talkfront]")) return;
+    if (document.querySelector("script[data-halochime]")) return;
     const s = document.createElement("script");
     s.src = `${APP_URL}/widget.js`;
     s.async = true;
     s.dataset.key = KEY;
-    s.dataset.talkfront = "";
+    s.dataset.halochime = "";
     document.body.appendChild(s);
   };
   if ("requestIdleCallback" in window) requestIdleCallback(add, { timeout: 3000 });
@@ -31,7 +31,7 @@ export function loadSupport() {
 
 /** Opens the help panel, or queues the call until the widget has loaded. */
 export function openSupport() {
-  const tf = (window.Talkfront ??= { q: [] });
-  if (typeof tf.open === "function") tf.open();
-  else (tf.q ??= []).push(["open"]);
+  const hc = (window.Halochime ??= { q: [] });
+  if (typeof hc.open === "function") hc.open();
+  else (hc.q ??= []).push(["open"]);
 }

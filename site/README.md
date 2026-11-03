@@ -22,7 +22,7 @@ pnpm build      # refreshes the saved release, type-checks, builds dist/
 
 ## Help chat
 
-The "Ask BudsBridge" chat is a [Talkfront](https://talkfront-ai.vercel.app) widget. It loads only when `VITE_TALKFRONT_KEY` is set (see `.env`; the key is public by design) and answers only on the hosts allowed for that agent. Its answers come from `knowledge/budsbridge-qa.md`, so update that file when the app changes.
+The "Ask BudsBridge" chat is a [Halochime](https://halochime.vercel.app) widget. It loads only when `VITE_HALOCHIME_KEY` is set (see `.env`; the key is public by design) and answers only on the hosts allowed for that agent. Its answers come from `knowledge/budsbridge-qa.md`, so update that file when the app changes.
 
 ## Deploy
 
