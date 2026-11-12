@@ -2,6 +2,8 @@ import { Check, MoreHorizontal } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface MoreMenuProps {
+  /** "Start with Windows", or "Open at login" on a Mac. */
+  startLabel?: string;
   startWithWindows: boolean;
   onStartWithWindows: (enabled: boolean) => void;
   onSettings: () => void;
@@ -9,7 +11,13 @@ interface MoreMenuProps {
 }
 
 /** The ⋯ menu in the dock header. */
-export function MoreMenu({ startWithWindows, onStartWithWindows, onSettings, onQuit }: MoreMenuProps) {
+export function MoreMenu({
+  startLabel = "Start with Windows",
+  startWithWindows,
+  onStartWithWindows,
+  onSettings,
+  onQuit,
+}: MoreMenuProps) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -56,7 +64,7 @@ export function MoreMenu({ startWithWindows, onStartWithWindows, onSettings, onQ
             onClick={choose(() => onStartWithWindows(!startWithWindows))}
           >
             <span className="menu__check">{startWithWindows && <Check size={13} />}</span>
-            Start with Windows
+            {startLabel}
           </button>
           <button type="button" role="menuitem" className="menu__item" onClick={choose(onSettings)}>
             <span className="menu__check" />

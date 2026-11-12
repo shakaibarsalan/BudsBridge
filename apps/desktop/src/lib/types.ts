@@ -27,7 +27,7 @@ export interface SourceView {
   lastError: string | null;
 }
 
-export type UnavailableReason = "noAudioService" | "lowEnergyOnly";
+export type UnavailableReason = "noAudioService" | "lowEnergyOnly" | "notSupportedByOs";
 
 /** A paired phone that can't stream to this laptop, listed with the reason. */
 export interface UnavailablePhone {
@@ -53,8 +53,10 @@ export interface Settings {
 }
 
 export interface AppInfo {
-  /** "windows" for real devices, "demo" for the simulated backend. */
+  /** "windows" or "macos" for real devices, "demo" for the simulated backend. */
   backend: string;
+  /** The operating system: "windows", "macos" or "linux". */
+  platform?: string;
   version: string;
   /** Window uses the Windows 11 Mica backdrop, so the page must be transparent. */
   mica: boolean;

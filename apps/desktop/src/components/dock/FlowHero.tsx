@@ -1,6 +1,7 @@
 import { useId } from "react";
 
 import { bridgeStatusLabel, shortName, statusLabel } from "../../lib/format";
+import { detectPlatform, words } from "../../lib/platform";
 import type { DeviceView, SourceView } from "../../lib/types";
 
 interface FlowHeroProps {
@@ -160,7 +161,7 @@ function Bud({ side, layer, ids }: { side: "a" | "b"; layer: "front" | "back"; i
 }
 
 /**
- * Phone(s) → laptop → buds, with light travelling along every link that is
+ * Phone(s) → computer → buds, with light travelling along every link that is
  * live. A pure function of the current state, like InverterBar's heroes.
  */
 export function FlowHero({ device, phones }: FlowHeroProps) {
@@ -183,10 +184,18 @@ export function FlowHero({ device, phones }: FlowHeroProps) {
   const playing = phones.filter((phone) => phone.state === "streaming");
   const more = Math.max(0, enabled.length - MAX_PHONES_DRAWN);
 
-  const phoneName =
-    enabled.length >= 2 ? `${enabled.length} phones` : shown[0] ? shortName(shown[0].name) : "Phone";
-  const phoneState =
-    enabled.length >= 2
+  // A Mac gets phone audio from an iPhone over AirPlay, not from a paired phone.
+  const airplay = detectPlatform() === "macos" && phones.length === 0;
+  const phoneName = airplay
+    ? "iPhone"
+    : enabled.length >= 2
+      ? `${enabled.length} phones`
+      : shown[0]
+        ? shortName(shown[0].name)
+        : "Phone";
+  const phoneState = airplay
+    ? "AirPlay"
+    : enabled.length >= 2
       ? playing.length === enabled.length
         ? "Playing"
         : playing.length > 0
@@ -195,11 +204,12 @@ export function FlowHero({ device, phones }: FlowHeroProps) {
       : shown[0]
         ? PHONE_STATE[shown[0].state]
         : "Not paired";
+  const { computer } = words();
   const laptopDetail = budsOn
     ? playing.length >= 2
-      ? "Mixing phones + laptop"
+      ? `Mixing phones + ${computer}`
       : playing.length === 1
-        ? "Mixing phone + laptop"
+        ? `Mixing phone + ${computer}`
         : "Playing to buds"
     : "Idle";
 
@@ -329,7 +339,7 @@ export function FlowHero({ device, phones }: FlowHeroProps) {
           {phoneState}
         </text>
         <text x="180" y="116" className="hero-name">
-          This laptop
+          This {computer}
         </text>
         <text x="180" y="131" className="hero-state">
           {laptopDetail}

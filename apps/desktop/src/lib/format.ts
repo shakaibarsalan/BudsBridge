@@ -52,6 +52,7 @@ export function bridgeStatusLabel(state: BridgeState): string {
 const UNAVAILABLE_LABELS: Record<UnavailableReason, string> = {
   noAudioService: "Windows doesn't offer its audio",
   lowEnergyOnly: "Paired over Bluetooth LE only",
+  notSupportedByOs: "Can't play through a Mac over Bluetooth",
 };
 
 export function unavailableLabel(reason: UnavailableReason): string {

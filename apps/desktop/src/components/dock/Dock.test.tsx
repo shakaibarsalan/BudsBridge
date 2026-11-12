@@ -1,6 +1,6 @@
 import { act, render, screen, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { api } from "../../lib/api";
 import type { AppInfo, DeviceView, Settings, SourceView } from "../../lib/types";
@@ -20,6 +20,8 @@ vi.mock("../../lib/api", () => ({
     setSourceEnabled: vi.fn(),
     onSourcesChanged: vi.fn(),
     listUnavailablePhones: vi.fn(),
+    airplayReceiver: vi.fn(),
+    openSystemSettings: vi.fn(),
     diagnostics: vi.fn(),
     openSettings: vi.fn(),
     quitApp: vi.fn(),
@@ -199,5 +201,58 @@ describe("Dock", () => {
     mocked.listDevices.mockResolvedValue([{ ...tws, state: "disconnected", lastError: "Connection timed out." }]);
     render(<Dock />);
     expect(await screen.findByRole("alert")).toHaveTextContent("Connection timed out.");
+  });
+});
+
+describe("Dock on a Mac", () => {
+  const MAC = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko)";
+
+  beforeEach(() => {
+    Object.defineProperty(window.navigator, "userAgent", { value: MAC, configurable: true });
+    mocked.listSources.mockResolvedValue([]);
+    mocked.listUnavailablePhones.mockResolvedValue([{ name: "Pixel 7", reason: "notSupportedByOs" }]);
+    mocked.airplayReceiver.mockResolvedValue(null);
+    mocked.openSystemSettings.mockResolvedValue(undefined);
+  });
+
+  afterEach(() => {
+    // Back to jsdom's own user agent on the prototype.
+    delete (window.navigator as { userAgent?: string }).userAgent;
+  });
+
+  it("speaks of this Mac, the Mac hotkey symbols and Open at login", async () => {
+    const user = userEvent.setup();
+    render(<Dock />);
+    expect(await screen.findByText("Buds on this Mac")).toBeInTheDocument();
+    // The header and the status card; no "phone audio off" on a Mac.
+    expect(screen.getAllByText("TWS connected")).toHaveLength(2);
+    expect(screen.getByText("Mac")).toBeInTheDocument(); // the one sound source
+    expect(screen.getByRole("button", { name: /Hotkey: ⌃⌥B/ })).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: "More" }));
+    expect(screen.getByRole("menuitemcheckbox", { name: "Open at login" })).toBeInTheDocument();
+  });
+
+  it("offers AirPlay for phone audio and lists paired phones with the reason", async () => {
+    const user = userEvent.setup();
+    render(<Dock />);
+    await screen.findByText("Buds on this Mac");
+    await user.click(screen.getByRole("button", { name: /comes from an iPhone over AirPlay/ }));
+    expect(screen.getByText(/tap AirPlay and choose this Mac/)).toBeInTheDocument();
+    expect(screen.getByText(/Android phones can't play through it yet/)).toBeInTheDocument();
+    const row = await screen.findByRole("listitem", { name: "Pixel 7" });
+    expect(within(row).getByText("Can't play through a Mac over Bluetooth")).toBeInTheDocument();
+    expect(screen.queryByRole("switch")).not.toBeInTheDocument();
+    // AirPlay Receiver isn't known to be off, so there is nothing to turn on.
+    expect(screen.queryByRole("button", { name: "Turn it on" })).not.toBeInTheDocument();
+  });
+
+  it("opens the AirPlay setting when AirPlay Receiver is off", async () => {
+    mocked.airplayReceiver.mockResolvedValue(false);
+    const user = userEvent.setup();
+    render(<Dock />);
+    await screen.findByText("Buds on this Mac");
+    await user.click(screen.getByRole("button", { name: /comes from an iPhone over AirPlay/ }));
+    await user.click(await screen.findByRole("button", { name: "Turn it on" }));
+    expect(mocked.openSystemSettings).toHaveBeenCalledWith("airplay");
   });
 });

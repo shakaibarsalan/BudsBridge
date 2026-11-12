@@ -1,9 +1,11 @@
 import { UNAVAILABLE_HINT, bridgeStatusLabel, unavailableLabel } from "../lib/format";
+import { detectPlatform } from "../lib/platform";
 import type { BridgeState, SourceView, UnavailablePhone } from "../lib/types";
+import { AirPlayHelp } from "./AirPlayHelp";
 
 interface PhoneAudioPanelProps {
   phones: SourceView[] | null;
-  /** Paired phones Windows won't stream from. */
+  /** Paired phones the system won't stream from. */
   unavailable?: UnavailablePhone[];
   onToggle: (phone: SourceView, enabled: boolean) => void;
 }
@@ -17,6 +19,7 @@ const CARD_STATE: Record<BridgeState, string> = {
 };
 
 export function PhoneAudioPanel({ phones, unavailable = [], onToggle }: PhoneAudioPanelProps) {
+  if (detectPlatform() === "macos") return <MacPhoneAudio unavailable={unavailable} />;
   return (
     <section className="panel" aria-labelledby="phone-title">
       <h2 id="phone-title">Phone audio</h2>
@@ -91,6 +94,35 @@ export function PhoneAudioPanel({ phones, unavailable = [], onToggle }: PhoneAud
         Phone calls: Windows Phone Link can take your calls on the laptop, so they reach the buds
         too.
       </p>
+    </section>
+  );
+}
+
+/** On a Mac there is no Bluetooth phone audio: an iPhone uses AirPlay. */
+function MacPhoneAudio({ unavailable }: { unavailable: UnavailablePhone[] }) {
+  return (
+    <section className="panel" aria-labelledby="phone-title">
+      <h2 id="phone-title">Phone audio</h2>
+      <AirPlayHelp textClass="muted" />
+      {unavailable.length > 0 && (
+        <ul className="devices">
+          {unavailable.map((phone) => (
+            <li
+              key={`unavailable:${phone.name}`}
+              className="device device--unavailable"
+              aria-label={phone.name}
+            >
+              <div className="device__main">
+                <span className="device__dot" aria-hidden="true" />
+                <div className="device__text">
+                  <p className="device__name">{phone.name}</p>
+                  <p className="device__status">{unavailableLabel(phone.reason)}</p>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
     </section>
   );
 }

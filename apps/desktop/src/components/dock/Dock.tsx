@@ -20,7 +20,9 @@ import {
   unavailableLabel,
 } from "../../lib/format";
 import type { DeviceView, SourceView } from "../../lib/types";
+import { detectPlatform, formatHotkey, words } from "../../lib/platform";
 import { useBudsBridge } from "../../lib/useBudsBridge";
+import { AirPlayHelp } from "../AirPlayHelp";
 import { ExpandRow } from "./ExpandRow";
 import { FlowHero } from "./FlowHero";
 import { MoreMenu } from "./MoreMenu";
@@ -74,15 +76,18 @@ export function Dock() {
   const [open, setOpen] = useState<"devices" | "phones" | null>(null);
   const root = useRef<HTMLDivElement>(null);
   useFitWindow(root);
+  const platform = detectPlatform();
+  const mac = platform === "macos";
+  const text = words(platform);
 
   const deviceList = devices ?? [];
   const phoneList = phones ?? [];
   const device = focusDevice(deviceList, settings?.preferredDevice ?? null);
   const phone = focusPhone(phoneList);
-  // Shown on the tile when Windows offers no phone but one is paired.
+  // Shown on the tile when the system offers no phone but one is paired.
   const unavailable = unavailablePhones[0] ?? null;
   const sources = soundSources(device, phoneList);
-  const { title, detail } = headline(device, phoneList);
+  const { title, detail } = headline(device, phoneList, platform);
   const playing = phoneList.filter((item) => item.state === "streaming");
   const problem = error ?? device?.lastError ?? phone?.lastError ?? null;
   const demo = info?.backend === "demo";
@@ -114,6 +119,7 @@ export function Dock() {
           <SettingsIcon size={15} />
         </button>
         <MoreMenu
+          startLabel={text.startAtLogin}
           startWithWindows={settings?.startWithWindows ?? false}
           onStartWithWindows={(enabled) => {
             if (settings) void saveSettings({ ...settings, startWithWindows: enabled });
@@ -157,7 +163,7 @@ export function Dock() {
           <span className="count__unit">{sources === 1 ? "source" : "sources"}</span>
           <span className="count__label">in your buds</span>
           <span className="count__side">
-            {sourcesLabel(sources)}
+            {sourcesLabel(sources, platform)}
           </span>
         </div>
 
@@ -166,7 +172,7 @@ export function Dock() {
             icon={<Headphones size={15} />}
             caption="Buds"
             value={device ? DEVICE_TILE[device.state] : "None"}
-            detail={device?.name ?? "Pair in Windows"}
+            detail={device?.name ?? text.pairShort}
             tone={
               device?.state === "connected"
                 ? "buds"
@@ -177,39 +183,52 @@ export function Dock() {
             label={device ? `Buds: ${statusLabel(device)}` : "No buds paired"}
             onClick={device ? () => toggleDevice(device) : undefined}
           />
-          <Tile
-            icon={<Smartphone size={15} />}
-            caption="Phone audio"
-            value={phone ? PHONE_TILE[phone.state] : unavailable ? "Unavailable" : "None"}
-            detail={phone?.name ?? unavailable?.name ?? "Pair in Windows"}
-            tone={
-              phone?.state === "streaming"
-                ? "phone"
-                : phone?.state === "connecting" || phone?.state === "waiting"
-                  ? "busy"
-                  : "off"
-            }
-            label={
-              phone
-                ? `Phone audio: ${bridgeStatusLabel(phone.state)}`
-                : unavailable
-                  ? `Phone audio unavailable for ${unavailable.name}. Show why`
-                  : "No phone paired"
-            }
-            onClick={
-              phone
-                ? () => togglePhone(phone, !phone.enabled)
-                : unavailable
-                  ? () => setOpen("phones")
-                  : undefined
-            }
-          />
+          {mac ? (
+            <Tile
+              icon={<Smartphone size={15} />}
+              caption="Phone audio"
+              value="AirPlay"
+              detail="from an iPhone"
+              label="Phone audio on a Mac comes from an iPhone over AirPlay. Show how"
+              onClick={() => setOpen("phones")}
+            />
+          ) : (
+            <Tile
+              icon={<Smartphone size={15} />}
+              caption="Phone audio"
+              value={phone ? PHONE_TILE[phone.state] : unavailable ? "Unavailable" : "None"}
+              detail={phone?.name ?? unavailable?.name ?? text.pairShort}
+              tone={
+                phone?.state === "streaming"
+                  ? "phone"
+                  : phone?.state === "connecting" || phone?.state === "waiting"
+                    ? "busy"
+                    : "off"
+              }
+              label={
+                phone
+                  ? `Phone audio: ${bridgeStatusLabel(phone.state)}`
+                  : unavailable
+                    ? `Phone audio unavailable for ${unavailable.name}. Show why`
+                    : "No phone paired"
+              }
+              onClick={
+                phone
+                  ? () => togglePhone(phone, !phone.enabled)
+                  : unavailable
+                    ? () => setOpen("phones")
+                    : undefined
+              }
+            />
+          )}
           <Tile
             icon={<Keyboard size={15} />}
             caption="Hotkey"
-            value={settings?.toggleHotkey ?? "Off"}
+            value={settings?.toggleHotkey ? formatHotkey(settings.toggleHotkey, platform) : "Off"}
             detail="toggles buds"
-            label={`Hotkey: ${settings?.toggleHotkey ?? "off"}. Change it in settings`}
+            label={`Hotkey: ${
+              settings?.toggleHotkey ? formatHotkey(settings.toggleHotkey, platform) : "off"
+            }. Change it in settings`}
             onClick={() => void api.openSettings()}
           />
           <Tile
@@ -234,7 +253,7 @@ export function Dock() {
           onToggle={() => toggleSection("devices")}
         >
           {deviceList.length === 0 ? (
-            <p className="dock-empty">Pair your buds in Windows Settings → Bluetooth &amp; devices.</p>
+            <p className="dock-empty">Pair your buds in {text.pairIn}.</p>
           ) : (
             <ul className="rows">
               {deviceList.map((item) => (
@@ -260,14 +279,17 @@ export function Dock() {
 
         <ExpandRow
           title="Phones"
-          value={`${phoneList.length + unavailablePhones.length} paired`}
+          value={mac ? "AirPlay" : `${phoneList.length + unavailablePhones.length} paired`}
           open={open === "phones"}
           onToggle={() => toggleSection("phones")}
         >
+          {mac && <AirPlayHelp textClass="dock-empty" />}
           {phoneList.length + unavailablePhones.length === 0 ? (
-            <p className="dock-empty">
-              Pair your phone with this laptop in Windows Settings → Bluetooth &amp; devices.
-            </p>
+            !mac && (
+              <p className="dock-empty">
+                Pair your phone with this laptop in Windows Settings → Bluetooth &amp; devices.
+              </p>
+            )
           ) : (
             <ul className="rows">
               {phoneList.map((item) => (
@@ -302,7 +324,9 @@ export function Dock() {
               ))}
             </ul>
           )}
-          {unavailablePhones.length > 0 && <p className="dock-empty dock-hint">{UNAVAILABLE_HINT}</p>}
+          {!mac && unavailablePhones.length > 0 && (
+            <p className="dock-empty dock-hint">{UNAVAILABLE_HINT}</p>
+          )}
         </ExpandRow>
       </section>
 

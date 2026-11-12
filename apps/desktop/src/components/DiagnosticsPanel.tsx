@@ -1,14 +1,16 @@
 import { useState } from "react";
 
 import { api } from "../lib/api";
+import { words } from "../lib/platform";
 
-/** Copies what BudsBridge and Windows see, for a bug report. */
+/** Copies what BudsBridge and the system see, for a bug report. */
 export function DiagnosticsPanel() {
+  const { os } = words();
   const [report, setReport] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
 
   const copy = async () => {
-    setStatus("Reading what Windows reports…");
+    setStatus(`Reading what ${os} reports…`);
     let text: string;
     try {
       text = await api.diagnostics();
@@ -29,8 +31,9 @@ export function DiagnosticsPanel() {
     <section className="panel" aria-labelledby="diagnostics-title">
       <h2 id="diagnostics-title">Troubleshooting</h2>
       <p className="muted small">
-        A phone missing or not connecting? Copy what BudsBridge and Windows see about your Bluetooth
-        devices and send it with your report. It includes device names and Bluetooth addresses.
+        Buds or a phone missing or not connecting? Copy what BudsBridge and {os} see about your
+        Bluetooth devices and send it with your report. It includes device names
+        {os === "Windows" ? " and Bluetooth addresses" : ""}.
       </p>
       <button type="button" className="button" onClick={() => void copy()}>
         Copy diagnostics

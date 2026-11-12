@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 
+import { detectPlatform, formatHotkey, words } from "../lib/platform";
 import type { Settings } from "../lib/types";
 
 interface SettingsPanelProps {
@@ -18,6 +19,8 @@ export function SettingsPanel({ settings, warnings, onChange }: SettingsPanelPro
     setHotkey(settings.toggleHotkey ?? "");
   }
 
+  const platform = detectPlatform();
+  const text = words(platform);
   const saveHotkey = (event: FormEvent) => {
     event.preventDefault();
     const trimmed = hotkey.trim();
@@ -47,8 +50,8 @@ export function SettingsPanel({ settings, warnings, onChange }: SettingsPanelPro
           onChange={(event) => onChange({ ...settings, startWithWindows: event.target.checked })}
         />
         <span>
-          Start with Windows
-          <small>Opens in the tray, ready for the hotkey.</small>
+          {text.startAtLogin}
+          <small>{text.startAtLoginDetail}</small>
         </span>
       </label>
 
@@ -58,7 +61,11 @@ export function SettingsPanel({ settings, warnings, onChange }: SettingsPanelPro
           <input
             id="hotkey-input"
             value={hotkey}
-            placeholder="e.g. Ctrl+Alt+B (empty = off)"
+            placeholder={
+              platform === "macos"
+                ? `e.g. Ctrl+Alt+B for ${formatHotkey("Ctrl+Alt+B", platform)} (empty = off)`
+                : "e.g. Ctrl+Alt+B (empty = off)"
+            }
             onChange={(event) => setHotkey(event.target.value)}
             spellCheck={false}
           />

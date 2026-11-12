@@ -2,6 +2,7 @@ import { DeviceCard } from "./components/DeviceCard";
 import { DiagnosticsPanel } from "./components/DiagnosticsPanel";
 import { PhoneAudioPanel } from "./components/PhoneAudioPanel";
 import { SettingsPanel } from "./components/SettingsPanel";
+import { words } from "./lib/platform";
 import { useBudsBridge } from "./lib/useBudsBridge";
 
 /** The full window: every device, every phone and all settings. */
@@ -38,8 +39,8 @@ export function App() {
             <p className="muted">Looking for paired devices…</p>
           ) : devices.length === 0 ? (
             <p className="muted">
-              No paired Bluetooth audio devices. Pair your buds in Windows Settings → Bluetooth &amp;
-              devices, then they show up here.
+              No paired Bluetooth audio devices. Pair your buds in {words().pairIn}, then they show
+              up here.
             </p>
           ) : (
             <ul className="devices">

@@ -23,9 +23,14 @@ export const api = {
     invoke<void>("set_source_enabled", { id, enabled }),
   onSourcesChanged: (handler: (sources: SourceView[]) => void): Promise<UnlistenFn> =>
     listen<SourceView[]>(SOURCES_CHANGED, (event) => handler(event.payload)),
-  /** Paired phones Windows won't stream audio from. */
+  /** Paired phones the system won't stream audio from. */
   listUnavailablePhones: () => invoke<UnavailablePhone[]>("list_unavailable_phones"),
-  /** What BudsBridge and Windows see, as text for a bug report. */
+  /** macOS: whether AirPlay Receiver is on; null when never changed (then it is on) or elsewhere. */
+  airplayReceiver: () => invoke<boolean | null>("airplay_receiver"),
+  /** macOS: opens a System Settings page. */
+  openSystemSettings: (page: "bluetooth" | "airplay" | "bluetooth-privacy") =>
+    invoke<void>("open_system_settings", { page }),
+  /** What BudsBridge and the system see, as text for a bug report. */
   diagnostics: () => invoke<string>("diagnostics"),
   /** Opens the full window (settings) and closes the dock. */
   openSettings: () => invoke<void>("open_settings"),
