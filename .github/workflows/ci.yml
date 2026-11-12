@@ -125,7 +125,7 @@ jobs:
         working-directory: apps/desktop
         run: pnpm install --frozen-lockfile && pnpm tauri build --ci --target universal-apple-darwin
       - name: Smoke test the app
-        run: scripts/macos-smoke.sh target/universal-apple-darwin/release/bundle
+        run: bash scripts/macos-smoke.sh target/universal-apple-darwin/release/bundle
       - uses: actions/upload-artifact@v4
         if: always()
         with:

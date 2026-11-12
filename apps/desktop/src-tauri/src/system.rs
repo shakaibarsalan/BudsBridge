@@ -71,23 +71,6 @@ pub fn open_settings_page(page: &str) -> Result<(), String> {
     }
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn settings_pages() {
-        assert_eq!(
-            settings_url("airplay"),
-            Some("x-apple.systempreferences:com.apple.AirDrop-Handoff-Settings.extension")
-        );
-        assert!(settings_url("bluetooth").is_some());
-        assert!(settings_url("bluetooth-privacy").is_some());
-        assert_eq!(settings_url("anything else"), None);
-        assert!(open_settings_page("anything else").is_err());
-    }
-}
-
 /// Saves new settings from the UI or tray and applies them everywhere.
 pub fn update_settings(app: &AppHandle, settings: Settings) -> Result<AppInfo, String> {
     let settings = settings.sanitized();
@@ -112,4 +95,21 @@ pub fn set_phone_bridged(app: &AppHandle, id: DeviceId, enabled: bool) -> Result
     state.store_settings(settings.clone())?;
     let _ = app.emit(SETTINGS_CHANGED, &settings);
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn settings_pages() {
+        assert_eq!(
+            settings_url("airplay"),
+            Some("x-apple.systempreferences:com.apple.AirDrop-Handoff-Settings.extension")
+        );
+        assert!(settings_url("bluetooth").is_some());
+        assert!(settings_url("bluetooth-privacy").is_some());
+        assert_eq!(settings_url("anything else"), None);
+        assert!(open_settings_page("anything else").is_err());
+    }
 }

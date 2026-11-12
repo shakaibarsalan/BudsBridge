@@ -106,11 +106,12 @@ char *bb_bluetooth_state_json(void) {
 
 // Shows macOS' "BudsBridge would like to use Bluetooth" prompt if the user
 // hasn't answered it yet. Creating a CoreBluetooth manager is what asks.
+static CBCentralManager *bb_central_manager;
+
 void bb_request_bluetooth_access(void) {
-    static CBCentralManager *manager;
     static dispatch_once_t once;
     dispatch_once(&once, ^{
-      manager = [[CBCentralManager alloc]
+      bb_central_manager = [[CBCentralManager alloc]
           initWithDelegate:nil
                      queue:nil
                    options:@{CBCentralManagerOptionShowPowerAlertKey : @NO}];
