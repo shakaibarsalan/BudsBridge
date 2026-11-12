@@ -28,8 +28,11 @@ fn current_views(app: &AppHandle) -> (Vec<DeviceView>, Vec<SourceView>) {
 
 pub fn create(app: &AppHandle) -> tauri::Result<()> {
     let (devices, phones) = current_views(app);
-    TrayIconBuilder::with_id(TRAY_ID)
-        .icon(Image::from_bytes(ICON_IDLE)?)
+    let builder = TrayIconBuilder::with_id(TRAY_ID).icon(Image::from_bytes(ICON_IDLE)?);
+    // The macOS menu bar draws template icons in its own colour, light or dark.
+    #[cfg(target_os = "macos")]
+    let builder = builder.icon_as_template(true);
+    builder
         .tooltip(tooltip(&devices, &phones))
         .menu(&build_menu(app, &devices, &phones)?)
         .show_menu_on_left_click(false)
@@ -78,6 +81,8 @@ fn refresh(app: &AppHandle) -> tauri::Result<()> {
     } else {
         ICON_IDLE
     })?))?;
+    #[cfg(target_os = "macos")]
+    tray.set_icon_as_template(true)?;
     Ok(())
 }
 

@@ -54,6 +54,8 @@ pub fn run() {
             commands::list_sources,
             commands::set_source_enabled,
             commands::list_unavailable_phones,
+            commands::airplay_receiver,
+            commands::open_system_settings,
             commands::diagnostics,
             commands::open_settings,
             commands::quit_app,
@@ -61,6 +63,9 @@ pub fn run() {
             commands::hide_dock,
         ])
         .setup(|app| {
+            // A menu bar app on macOS: no Dock icon, like the tray on Windows.
+            #[cfg(target_os = "macos")]
+            app.set_activation_policy(tauri::ActivationPolicy::Accessory);
             setup(app.handle())?;
             Ok(())
         })
@@ -81,8 +86,20 @@ pub fn run() {
             }
             _ => {}
         })
-        .run(tauri::generate_context!())
-        .expect("error while running BudsBridge");
+        .build(tauri::generate_context!())
+        .expect("error while starting BudsBridge")
+        .run(on_run_event);
+}
+
+/// Opening BudsBridge again while it runs (Finder, Launchpad, Spotlight)
+/// reaches the running copy as "reopen" on macOS: show the dock.
+fn on_run_event(app: &AppHandle, event: tauri::RunEvent) {
+    #[cfg(target_os = "macos")]
+    if let tauri::RunEvent::Reopen { .. } = event {
+        dock::show(app);
+    }
+    #[cfg(not(target_os = "macos"))]
+    let _ = (app, event);
 }
 
 fn setup(app: &AppHandle) -> Result<(), Box<dyn std::error::Error>> {
@@ -152,6 +169,13 @@ fn create_backends() -> Backends {
             Arc::new(budsbridge_win::PhoneAudioBackend::new()),
         );
     }
+    #[cfg(target_os = "macos")]
+    if !demo {
+        return (
+            Arc::new(budsbridge_mac::MacBackend::new()),
+            Arc::new(budsbridge_mac::MacPhoneBackend::new()),
+        );
+    }
     if !demo {
         log::warn!("no Bluetooth backend for this platform; using demo devices");
     }
@@ -168,10 +192,27 @@ fn supports_mica() -> bool {
     false
 }
 
-pub fn windows_build() -> Option<u32> {
+/// The operating system, for the diagnostics report.
+pub fn os_label() -> String {
     #[cfg(windows)]
-    return budsbridge_win::windows_build();
-    #[cfg(not(windows))]
+    return budsbridge_win::windows_build().map_or_else(
+        || "Windows".to_owned(),
+        |build| format!("Windows build {build}"),
+    );
+    #[cfg(target_os = "macos")]
+    return budsbridge_mac::bluetooth_state()
+        .version()
+        .map_or_else(|| "macOS".to_owned(), |version| format!("macOS {version}"));
+    #[cfg(not(any(windows, target_os = "macos")))]
+    std::env::consts::OS.to_owned()
+}
+
+/// macOS only: whether AirPlay Receiver is on, so an iPhone can play through
+/// this Mac. `None` elsewhere, or when the setting was never changed.
+pub fn airplay_receiver() -> Option<bool> {
+    #[cfg(target_os = "macos")]
+    return budsbridge_mac::airplay_receiver_enabled();
+    #[cfg(not(target_os = "macos"))]
     None
 }
 

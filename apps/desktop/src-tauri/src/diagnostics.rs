@@ -1,12 +1,13 @@
 //! The plain-text report behind "Copy diagnostics": what BudsBridge shows and
-//! what Windows reports, so a bug report says what the user's machine sees.
+//! what the system reports, so a bug report says what the user's machine sees.
 
 use budsbridge_core::{DeviceView, SourceView};
 
 pub struct Header<'a> {
     pub version: &'a str,
     pub backend: &'a str,
-    pub windows_build: Option<u32>,
+    /// e.g. `Windows build 26100` or `macOS 15.1`.
+    pub os: &'a str,
 }
 
 pub fn render(
@@ -18,12 +19,7 @@ pub fn render(
 ) -> String {
     let mut lines = vec![format!(
         "BudsBridge {} · {} backend · {}",
-        header.version,
-        header.backend,
-        header.windows_build.map_or_else(
-            || "not Windows".to_owned(),
-            |build| format!("Windows build {build}")
-        )
+        header.version, header.backend, header.os
     )];
 
     lines.push(format!("Buds and headphones ({}):", devices.len()));
@@ -108,7 +104,7 @@ mod tests {
         let header = Header {
             version: "0.3.2",
             backend: "windows",
-            windows_build: Some(26100),
+            os: "Windows build 26100",
         };
 
         let report = render(&header, &devices, &phones, &[], "Paired devices (0):\n");

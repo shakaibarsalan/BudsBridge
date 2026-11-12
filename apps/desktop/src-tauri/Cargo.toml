@@ -31,5 +31,8 @@ tauri-plugin-single-instance = "2.5"
 [target.'cfg(windows)'.dependencies]
 budsbridge-win.workspace = true
 
+[target.'cfg(target_os = "macos")'.dependencies]
+budsbridge-mac.workspace = true
+
 [lints]
 workspace = true

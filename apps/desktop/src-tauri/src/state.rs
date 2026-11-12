@@ -15,6 +15,8 @@ use serde::Serialize;
 #[serde(rename_all = "camelCase")]
 pub struct AppInfo {
     pub backend: &'static str,
+    /// `windows`, `macos` or `linux`.
+    pub platform: &'static str,
     pub version: String,
     pub mica: bool,
     pub warnings: Vec<String>,
@@ -92,6 +94,7 @@ impl AppState {
     pub fn info(&self, version: String) -> AppInfo {
         AppInfo {
             backend: self.runtime.handle().backend_name(),
+            platform: std::env::consts::OS,
             version,
             mica: self.mica,
             warnings: lock(&self.warnings).clone(),

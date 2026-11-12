@@ -3,13 +3,18 @@ resolver = "3"
 members = [
     "crates/budsbridge-core",
     "crates/budsbridge-win",
+    "crates/budsbridge-mac",
     "apps/desktop/src-tauri",
 ]
 # The desktop app needs a webview toolchain; plain `cargo test` covers the libraries.
-default-members = ["crates/budsbridge-core", "crates/budsbridge-win"]
+default-members = [
+    "crates/budsbridge-core",
+    "crates/budsbridge-win",
+    "crates/budsbridge-mac",
+]
 
 [workspace.package]
-version = "0.3.6"
+version = "0.4.0"
 edition = "2024"
 rust-version = "1.85"
 repository = "https://github.com/shakaibarsalan/BudsBridge"
@@ -17,6 +22,7 @@ repository = "https://github.com/shakaibarsalan/BudsBridge"
 [workspace.dependencies]
 budsbridge-core = { path = "crates/budsbridge-core" }
 budsbridge-win = { path = "crates/budsbridge-win" }
+budsbridge-mac = { path = "crates/budsbridge-mac" }
 log = "0.4"
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"

@@ -60,7 +60,21 @@ pub async fn list_unavailable_phones(
         .map_err(|err| err.to_string())
 }
 
-/// What BudsBridge shows and Windows reports, as text for a bug report.
+/// macOS: whether AirPlay Receiver is on (`None` when never changed, which
+/// means on, and on other systems).
+#[tauri::command]
+pub fn airplay_receiver() -> Option<bool> {
+    crate::airplay_receiver()
+}
+
+/// Opens a page of the system settings: `bluetooth`, `airplay` or
+/// `bluetooth-privacy`. macOS only for now.
+#[tauri::command]
+pub fn open_system_settings(page: String) -> Result<(), String> {
+    system::open_settings_page(&page)
+}
+
+/// What BudsBridge shows and the system reports, as text for a bug report.
 #[tauri::command]
 pub async fn diagnostics(app: AppHandle, state: State<'_, AppState>) -> Result<String, String> {
     let sources = state.sources();
@@ -71,7 +85,7 @@ pub async fn diagnostics(app: AppHandle, state: State<'_, AppState>) -> Result<S
     let header = diagnostics::Header {
         version: &version,
         backend: state.runtime().backend_name(),
-        windows_build: crate::windows_build(),
+        os: &crate::os_label(),
     };
     Ok(diagnostics::render(
         &header,

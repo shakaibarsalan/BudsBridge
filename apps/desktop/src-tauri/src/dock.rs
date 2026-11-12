@@ -116,6 +116,9 @@ pub fn create(app: &AppHandle, backdrop: bool) -> tauri::Result<()> {
         .always_on_top(true)
         .shadow(true)
         .visible(false);
+    // Open on the Space the user is in, also over full-screen apps.
+    #[cfg(target_os = "macos")]
+    let builder = builder.visible_on_all_workspaces(true);
     let builder = if backdrop {
         use tauri::window::{Effect, EffectsBuilder};
         builder

@@ -42,6 +42,9 @@ pub enum UnavailableReason {
     NoAudioService,
     /// Paired over Bluetooth Low Energy only, which carries no phone audio.
     LowEnergyOnly,
+    /// The operating system can't receive a phone's Bluetooth audio at all
+    /// (macOS has no A2DP sink).
+    NotSupportedByOs,
 }
 
 /// A paired phone that can't stream to this laptop. Listed with the reason so
