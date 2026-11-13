@@ -50,7 +50,7 @@ function Tile({
  * that are also the switches. `size="screen"` is the small copy inside the laptop picture.
  */
 export function Dock({ size = "card" }: { size?: "card" | "screen" }) {
-  const { state, view, toggleBuds, togglePhone, toggleReconnect, pressHotkey } = useDemo();
+  const { state, view, hotkey, toggleBuds, togglePhone, toggleReconnect, pressHotkey } = useDemo();
   const budsOn = state.buds === "on";
 
   return (
@@ -134,7 +134,7 @@ export function Dock({ size = "card" }: { size?: "card" | "screen" }) {
           <Tile
             icon={<IconKeyboard />}
             label="Hotkey"
-            value="Ctrl+Alt+B"
+            value={hotkey}
             sub="toggles buds"
             tone="plain"
             onClick={pressHotkey}

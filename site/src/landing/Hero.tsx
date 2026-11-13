@@ -13,7 +13,7 @@ import { Scene } from "./Scene";
 
 export function Hero() {
   const { release } = useLatestRelease();
-  const { state, pressHotkey } = useDemo();
+  const { state, hotkey, pressHotkey } = useDemo();
   const reduce = useReducedMotion();
   const stage = useRef<HTMLDivElement>(null);
 
@@ -86,7 +86,7 @@ export function Hero() {
           <li>Free and open source</li>
           <li>No account</li>
           <li>Nothing to install on your phone</li>
-          <li>Windows 11</li>
+          <li>Windows 11 and macOS</li>
         </motion.ul>
       </div>
 
@@ -108,7 +108,7 @@ export function Hero() {
 
         <div className="hero__try">
           <span className="hero__try-label">{state.takenOver ? "Your turn. Press" : "Try it. Click the tiles, or press"}</span>
-          <HotkeyKeys pulse={state.hotkey} onPress={pressHotkey} label="Press Ctrl+Alt+B in the demo" />
+          <HotkeyKeys pulse={state.hotkey} onPress={pressHotkey} label={`Press ${hotkey} in the demo`} />
         </div>
       </div>
     </section>

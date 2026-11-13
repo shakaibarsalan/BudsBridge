@@ -638,3 +638,384 @@
 .notes ol {
   padding-left: 20px;
 }
+
+/* Windows / Mac switch */
+.dl-switch {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 22px;
+}
+.dl-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 5px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.04);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+.dl-tabs__tab {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  height: 42px;
+  padding: 0 22px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 560;
+  color: var(--text-2);
+  transition: color 0.2s;
+}
+.dl-tabs__tab:hover {
+  color: var(--text);
+}
+.dl-tabs__tab.is-on {
+  color: var(--text);
+}
+.dl-tabs__tab:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+.dl-tabs__tab svg,
+.dl-tabs__tab span:not(.dl-tabs__pill) {
+  position: relative;
+  z-index: 1;
+}
+.dl-tabs__tab svg {
+  width: 17px;
+  height: 17px;
+}
+.dl-tabs__pill {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgb(128 184 255 / 0.22), rgb(77 148 255 / 0.12));
+  box-shadow:
+    inset 0 0 0 1px rgb(128 184 255 / 0.4),
+    0 8px 24px -10px rgb(47 111 214 / 0.8);
+}
+
+/* Mac cards */
+.opt--none .opt__icon {
+  color: var(--text-3);
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: inset 0 0 0 1px var(--line-2);
+}
+.opt__text {
+  font-size: 15px;
+  color: var(--text-2);
+}
+.opt--info {
+  gap: 18px;
+}
+.opt__new {
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  border-radius: var(--radius);
+  background: rgb(255 199 92 / 0.06);
+  box-shadow: inset 0 0 0 1px rgb(255 199 92 / 0.25);
+  font-size: 14.5px;
+  color: var(--text-2);
+}
+.opt__new-tag {
+  justify-self: start;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--amber);
+  background: rgb(255 199 92 / 0.12);
+}
+.opt__phone {
+  display: grid;
+  gap: 10px;
+  font-size: 14.5px;
+  color: var(--text-2);
+}
+.opt__phone h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 620;
+  color: var(--text);
+}
+.opt__phone h3 svg {
+  width: 20px;
+  height: 20px;
+  color: var(--green);
+}
+.opt__phone b {
+  color: var(--text);
+}
+
+/* the redrawn first open on macOS */
+.mac {
+  position: relative;
+  min-height: 400px;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background:
+    radial-gradient(70% 80% at 85% 105%, #c4508a 0%, transparent 60%),
+    radial-gradient(70% 90% at 10% 0%, #3a2c8f 0%, transparent 62%),
+    linear-gradient(165deg, #1a1440 0%, #0d0a22 100%);
+  box-shadow: 0 0 0 1px var(--line);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--font);
+  color: #f5f5f7;
+}
+.mac__menubar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 26px;
+  padding: 0 14px;
+  font-size: 12px;
+  font-weight: 500;
+  background: rgb(20 18 40 / 0.55);
+  backdrop-filter: blur(12px);
+}
+.mac__menubar-apps,
+.mac__menubar-end {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mac__menubar-apps i {
+  width: 26px;
+  height: 6px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.28);
+}
+.mac__menubar-apps i:first-child {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 0.75);
+}
+.mac__menubar-end i {
+  width: 14px;
+  height: 8px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 0.4);
+}
+.mac__menubar-bb {
+  display: grid;
+  place-items: center;
+}
+.mac__menubar-bb svg {
+  border-radius: 4px;
+  box-shadow: 0 0 12px rgb(128 184 255 / 0.9);
+}
+.mac__stage {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 24px 20px 28px;
+}
+.mac__alert {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  width: min(100%, 270px);
+  padding: 22px 18px 16px;
+  border-radius: 14px;
+  text-align: center;
+  background: rgb(44 42 52 / 0.94);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.12),
+    0 30px 60px -18px rgb(0 0 0 / 0.75);
+  backdrop-filter: blur(20px);
+}
+.mac__alert-icon svg {
+  border-radius: 11px;
+}
+.mac__alert b {
+  font-size: 13.5px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.mac__alert p {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: rgb(245 245 247 / 0.78);
+}
+.mac__alert-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  width: 100%;
+  margin-top: 6px;
+}
+.mac__alert-buttons--stack {
+  grid-template-columns: 1fr;
+}
+.mac__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 7px;
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  background: rgb(255 255 255 / 0.14);
+  transition:
+    background-color 0.2s,
+    filter 0.2s;
+}
+.mac__btn--primary {
+  background: #0a7cff;
+}
+.mac__btn.is-hover {
+  filter: brightness(1.25);
+  background-color: rgb(255 255 255 / 0.24);
+}
+.mac__btn--primary.is-hover {
+  background-color: #2b8fff;
+}
+.mac__btn--small {
+  height: 24px;
+  font-size: 11.5px;
+}
+.mac__win {
+  position: relative;
+  width: min(100%, 460px);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #232227;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.1),
+    0 30px 60px -18px rgb(0 0 0 / 0.75);
+}
+.mac__win-bar {
+  display: flex;
+  gap: 7px;
+  padding: 11px 12px;
+}
+.mac__win-bar i {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: #ff5f57;
+}
+.mac__win-bar i:nth-child(2) {
+  background: #febc2e;
+}
+.mac__win-bar i:nth-child(3) {
+  background: #28c840;
+}
+.mac__win-body {
+  display: grid;
+  grid-template-columns: 128px minmax(0, 1fr);
+  min-height: 210px;
+}
+.mac__side {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  padding: 4px 8px 12px;
+  font-size: 11.5px;
+  color: rgb(245 245 247 / 0.7);
+}
+.mac__side span {
+  padding: 5px 8px;
+  border-radius: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mac__side .is-on {
+  color: #fff;
+  background: #0a63d8;
+}
+.mac__pane {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  padding: 2px 14px 16px;
+  background: #1c1b20;
+  border-top-left-radius: 8px;
+}
+.mac__pane-title {
+  padding-top: 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.mac__pane-label {
+  margin-top: 4px;
+  font-size: 11.5px;
+  font-weight: 650;
+}
+.mac__group {
+  border-radius: 8px;
+  background: rgb(255 255 255 / 0.05);
+  box-shadow: inset 0 0 0 1px rgb(255 255 255 / 0.06);
+}
+.mac__group--faint {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+.mac__group--faint i {
+  height: 6px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 0.1);
+}
+.mac__group--faint i:last-child {
+  width: 60%;
+}
+.mac__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+.mac__sheet {
+  position: absolute;
+  top: 34px;
+  left: 50%;
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  width: 190px;
+  padding: 16px 14px;
+  border-radius: 12px;
+  font-size: 11.5px;
+  text-align: center;
+  background: rgb(52 50 60 / 0.97);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.14),
+    0 20px 40px -12px rgb(0 0 0 / 0.8);
+}
+.mac__touch {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: #ff6b8b;
+  box-shadow: inset 0 0 0 1.5px rgb(255 107 139 / 0.6);
+}
+.mac__touch svg {
+  width: 26px;
+  height: 26px;
+}
+@media (max-width: 520px) {
+  .mac__win-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .mac__side {
+    display: none;
+  }
+  .mac__pane {
+    border-top-left-radius: 0;
+  }
+}

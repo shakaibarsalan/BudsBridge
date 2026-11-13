@@ -1,7 +1,8 @@
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { useOs } from "../lib/platform";
 
-/** Ctrl + Alt + B keycaps that press down each time `pulse` changes. */
+/** Ctrl + Alt + B keycaps (⌃ ⌥ B on a Mac) that press down each time `pulse` changes. */
 export function HotkeyKeys({ pulse, onPress, label = "Press the hotkey" }: { pulse: number; onPress?: () => void; label?: string }) {
   const [down, setDown] = useState(false);
   useEffect(() => {
@@ -11,7 +12,8 @@ export function HotkeyKeys({ pulse, onPress, label = "Press the hotkey" }: { pul
     return () => clearTimeout(t);
   }, [pulse]);
 
-  const keys = ["Ctrl", "Alt", "B"];
+  const mac = useOs() === "mac";
+  const keys = mac ? ["⌃", "⌥", "B"] : ["Ctrl", "Alt", "B"];
   const Tag = onPress ? motion.button : motion.span;
   return (
     <Tag
@@ -21,7 +23,7 @@ export function HotkeyKeys({ pulse, onPress, label = "Press the hotkey" }: { pul
     >
       {keys.map((k, i) => (
         <span key={k} className="keys__group">
-          <kbd className="keycap" style={{ transitionDelay: down ? `${i * 30}ms` : "0ms" }}>
+          <kbd className="keycap" title={mac ? ["Control", "Option", "B"][i] : undefined} style={{ transitionDelay: down ? `${i * 30}ms` : "0ms" }}>
             {k}
           </kbd>
           {i < keys.length - 1 && <span className="keys__plus">+</span>}

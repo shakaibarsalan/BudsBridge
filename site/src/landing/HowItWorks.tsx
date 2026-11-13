@@ -104,19 +104,19 @@ const STEPS = [
   {
     n: "01",
     title: "Pair once",
-    body: "Pair your buds, and your phone if you want its audio, with the laptop in Bluetooth & devices. That's the only setup.",
+    body: "Pair your buds with the laptop in its Bluetooth settings, and on Windows your phone too if you want its audio. That's the only setup.",
     Visual: PairVisual,
   },
   {
     n: "02",
     title: "Turn on Phone audio",
-    body: "One click on the Phone audio tile. The link turns green and your buds now play the phone and the laptop together. It stays on, even after a restart.",
+    body: "On Windows, one click on the Phone audio tile. Your buds now play the phone and the laptop together, even after a restart. On a Mac, an iPhone plays through AirPlay instead.",
     Visual: PhoneAudioVisual,
   },
   {
     n: "03",
     title: "Leaving? One key",
-    body: "Walking away from the laptop? Ctrl+Alt+B, the tray menu or the Buds tile frees the buds for your phone, and brings them back when you return.",
+    body: "Walking away from the laptop? Ctrl+Alt+B (⌃⌥B on a Mac) or the Buds tile frees the buds for your phone, and brings them back when you return.",
     Visual: HotkeyVisual,
   },
 ];

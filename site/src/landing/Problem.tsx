@@ -19,7 +19,7 @@ const STAGES = [
   {
     kicker: "What BudsBridge does",
     title: "Your buds never leave the laptop.",
-    body: "Your phone connects to the laptop as if it were a speaker, and Windows mixes the phone's sound with the laptop's into your buds. Nothing switches.",
+    body: "Your phone connects to the laptop as if it were a speaker, and Windows mixes the phone's sound with the laptop's into your buds. Nothing switches. On a Mac, an iPhone does the same over AirPlay.",
   },
 ];
 

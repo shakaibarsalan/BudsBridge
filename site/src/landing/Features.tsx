@@ -6,6 +6,7 @@ import dockLight from "../../../docs/media/dock-light.png";
 import { IconLock, IconMoon, IconRocket, IconSun } from "../components/Icons";
 import { HotkeyKeys } from "../components/Keys";
 import { Reveal } from "../components/Reveal";
+import { useOs } from "../lib/platform";
 
 /** A card that tilts a little toward the pointer and lights up under it. */
 function Card({ className = "", children, delay = 0 }: { className?: string; children: ReactNode; delay?: number }) {
@@ -254,6 +255,7 @@ function Counter({ to, on }: { to: number; on: boolean }) {
 
 function Private() {
   const [ref, on] = useActive();
+  const mac = useOs() === "mac";
   return (
     <div ref={ref} className="fprivate">
       <div>
@@ -270,7 +272,7 @@ function Private() {
       </div>
       <div className="is-one">
         <Counter to={1} on={on} />
-        <span>.exe</span>
+        <span>{mac ? "app" : ".exe"}</span>
       </div>
     </div>
   );
@@ -278,12 +280,13 @@ function Private() {
 
 function Autostart() {
   const [ref, on] = useActive();
+  const mac = useOs() === "mac";
   return (
     <div ref={ref} className={`fauto ${on ? "is-on" : ""}`}>
       <span className="fauto__switch">
         <i />
       </span>
-      <span>Start with Windows</span>
+      <span>{mac ? "Open at login" : "Start with Windows"}</span>
     </div>
   );
 }
@@ -308,7 +311,7 @@ export function Features() {
             <div className="fcard__copy">
               <h3>A dock in your tray</h3>
               <p>
-                Click the tray icon and a small panel opens beside it: what plays where, how many sources reach your buds, and
+                Click the tray icon (the menu bar icon on a Mac) and a small panel opens beside it: what plays where, how many sources reach your buds, and
                 four tiles that are also the switches. It closes when you click away.
               </p>
             </div>
@@ -318,7 +321,10 @@ export function Features() {
           <Card className="b-retry" delay={0.06}>
             <div className="fcard__copy">
               <h3>Phone audio that stays on</h3>
-              <p>If the phone walks away, BudsBridge waits and reconnects. It even turns itself back on after a restart.</p>
+              <p>
+                On Windows, if the phone walks away, BudsBridge waits and reconnects. It even turns itself back on after a
+                restart.
+              </p>
             </div>
             <PhoneRetry />
           </Card>
@@ -336,8 +342,8 @@ export function Features() {
 
           <Card className="b-compare">
             <div className="fcard__copy">
-              <h3>Looks like Windows 11</h3>
-              <p>Mica backdrop, and light and dark follow your system. Drag to compare.</p>
+              <h3>Looks like your system</h3>
+              <p>Light and dark follow your system on Windows and Mac, with a Mica backdrop on Windows 11. Drag to compare.</p>
             </div>
             <Compare />
           </Card>
@@ -345,7 +351,7 @@ export function Features() {
           <Card className="b-hot" delay={0.06}>
             <div className="fcard__copy">
               <h3>One hotkey, any app</h3>
-              <p>Ctrl+Alt+B toggles your buds from anywhere. Change it, or turn it off.</p>
+              <p>Ctrl+Alt+B, or ⌃⌥B on a Mac, toggles your buds from any app. On Windows you can change it or turn it off.</p>
             </div>
             <Hotkey />
           </Card>
@@ -361,7 +367,7 @@ export function Features() {
           <Card className="b-private">
             <div className="fcard__copy">
               <h3>
-                <IconLock /> Stays on your PC
+                <IconLock /> Stays on your computer
               </h3>
               <p>Everything runs on your machine. One small file, no sign-up, nothing to install on the phone.</p>
             </div>
@@ -373,7 +379,7 @@ export function Features() {
               <h3>
                 <IconRocket /> Ready when you are
               </h3>
-              <p>Starts with Windows, minimized to the tray, with the hotkey ready.</p>
+              <p>Starts with Windows, minimized to the tray, with the hotkey ready. On a Mac, turn on Open at login.</p>
             </div>
             <Autostart />
           </Card>

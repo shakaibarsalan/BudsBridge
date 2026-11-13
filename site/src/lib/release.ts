@@ -26,6 +26,8 @@ export type Picked = {
   release: Release;
   installer: Asset | null;
   portable: Asset | null;
+  /** the Mac app (.dmg); releases before 0.4.0 have none */
+  mac: Asset | null;
   sums: Asset | null;
   /** true once the newest release came back from GitHub, false while showing the copy saved at build time */
   live: boolean;
@@ -70,6 +72,7 @@ export function pick(release: Release, live: boolean): Picked {
     release,
     installer: release.assets.find((a) => /setup\.exe$/i.test(a.name)) ?? null,
     portable: release.assets.find((a) => /^BudsBridge\.exe$/i.test(a.name)) ?? null,
+    mac: release.assets.find((a) => /\.dmg$/i.test(a.name)) ?? null,
     sums: release.assets.find((a) => /sha256sums/i.test(a.name)) ?? null,
     live,
   };

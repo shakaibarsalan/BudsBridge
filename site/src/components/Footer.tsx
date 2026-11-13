@@ -10,7 +10,7 @@ export function Footer() {
           <a href={HOME} aria-label="BudsBridge home">
             <Logo />
           </a>
-          <p>One pair of buds for your phone and your laptop. Free and open source, for Windows 11.</p>
+          <p>One pair of buds for your phone and your laptop. Free and open source, for Windows 11 and macOS.</p>
         </div>
         <nav className="footer__cols" aria-label="Footer">
           <div>
@@ -51,7 +51,7 @@ export function Footer() {
       </div>
       <div className="container footer__base">
         <span>© {new Date().getFullYear()} Muhammad Shakaib Arsalan</span>
-        <span>Not affiliated with Microsoft. Windows is a trademark of Microsoft.</span>
+        <span>Not affiliated with Microsoft or Apple. Windows is a trademark of Microsoft; Mac and macOS are trademarks of Apple.</span>
       </div>
     </footer>
   );

@@ -70,7 +70,10 @@ function StateMachine() {
 const POINTS = [
   { k: "Rust + Tauri 2", v: "A single ~4 MB .exe with a WebView2 window. Windows 11 already has the runtime." },
   { k: "A pure state machine", v: "Commands, device snapshots and time go in, actions come out. Every transition is unit-tested." },
-  { k: "Honest notes", v: "Tested on one real setup so far, with two phones at once. Delay hasn't been measured yet." },
+  {
+    k: "Honest notes",
+    v: "Tested on one real Windows setup so far, with two phones at once. Delay hasn't been measured yet. The Mac version is new and not yet tested with real buds.",
+  },
 ];
 
 export function OpenSource() {

@@ -9,6 +9,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { hotkeyText, useOs } from "./platform";
 
 // A tiny copy of the app's dock logic, enough to drive the hero picture and the
 // clickable dock. It mirrors what the real dock shows; nothing here talks to Bluetooth.
@@ -77,7 +78,7 @@ export type View = {
   handedBack: boolean;
 };
 
-export function describe(s: State): View {
+export function describe(s: State, hotkey = "Ctrl+Alt+B"): View {
   const budsHere = s.buds === "on";
   const playing = s.phone === "playing";
   const sources = budsHere ? 1 + (playing ? 1 : 0) : 0;
@@ -92,7 +93,7 @@ export function describe(s: State): View {
     detail = "Releasing them for your phone";
   } else if (s.buds === "off") {
     headline = "Buds free for your phone";
-    detail = `Press Ctrl+Alt+B to bring them back`;
+    detail = `Press ${hotkey} to bring them back`;
   } else if (s.phone === "connecting") {
     headline = "Connecting your phone…";
     detail = "Phone audio is starting";
@@ -139,6 +140,8 @@ export function describe(s: State): View {
 type Ctx = {
   state: State;
   view: View;
+  /** the hotkey as the visitor's system writes it */
+  hotkey: string;
   toggleBuds: () => void;
   togglePhone: () => void;
   toggleReconnect: () => void;
@@ -160,6 +163,7 @@ const TOUR: { wait: number; act: Action["type"] }[] = [
 
 export function DemoProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, initial);
+  const hotkey = hotkeyText(useOs());
   const [visible, setVisible] = useState(true);
   const observer = useRef<IntersectionObserver | null>(null);
 
@@ -189,10 +193,10 @@ export function DemoProvider({ children }: { children: ReactNode }) {
     return () => clearTimeout(t);
   }, [state, visible]);
 
-  // The real shortcut works here too.
+  // The real shortcut works here too (Control+Option+B on a Mac, where Option changes e.key).
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.altKey && !e.shiftKey && e.key.toLowerCase() === "b") {
+      if (e.ctrlKey && e.altKey && !e.shiftKey && !e.metaKey && (e.code === "KeyB" || e.key.toLowerCase() === "b")) {
         e.preventDefault();
         dispatch({ type: "hotkey", user: true });
       }
@@ -213,14 +217,15 @@ export function DemoProvider({ children }: { children: ReactNode }) {
   const value = useMemo<Ctx>(
     () => ({
       state,
-      view: describe(state),
+      view: describe(state, hotkey),
+      hotkey,
       toggleBuds: () => dispatch({ type: "buds", user: true }),
       togglePhone: () => dispatch({ type: "phone", user: true }),
       toggleReconnect: () => dispatch({ type: "reconnect", user: true }),
       pressHotkey: () => dispatch({ type: "hotkey", user: true }),
       watch,
     }),
-    [state, watch],
+    [state, watch, hotkey],
   );
 
   return <DemoContext.Provider value={value}>{children}</DemoContext.Provider>;

@@ -4,10 +4,12 @@ import { LogoMark } from "../components/Logo";
 import { Reveal } from "../components/Reveal";
 import { bytes } from "../lib/format";
 import { DOWNLOAD_PAGE } from "../lib/links";
+import { useOs } from "../lib/platform";
 import { useLatestRelease } from "../lib/release";
 
 export function FinalCta() {
-  const { installer } = useLatestRelease();
+  const { installer, mac } = useLatestRelease();
+  const os = useOs();
   return (
     <section className="section final">
       <div className="container">
@@ -27,8 +29,9 @@ export function FinalCta() {
             <span className="grad-text">Both your devices.</span>
           </h2>
           <p className="lede">
-            Free for Windows 11. {installer ? `A ${bytes(installer.size)} installer` : "An installer"}, or one .exe you just
-            open.
+            {os === "mac" && mac
+              ? `Free for Mac and Windows 11. On a Mac, one ${bytes(mac.size)} app for Apple Silicon and Intel.`
+              : `Free for Windows 11${mac ? " and macOS" : ""}. ${installer ? `A ${bytes(installer.size)} installer` : "An installer"}, or one .exe you just open.`}
           </p>
           <div className="final__actions">
             <DownloadButton />

@@ -20,9 +20,3 @@ export function ago(iso: string) {
   if (days < 31) return `${days} days ago`;
   return shortDate(iso);
 }
-
-export function isWindows() {
-  const nav = navigator as Navigator & { userAgentData?: { platform?: string } };
-  const platform = nav.userAgentData?.platform ?? navigator.platform ?? "";
-  return /win/i.test(platform) || /Windows NT/i.test(navigator.userAgent);
-}

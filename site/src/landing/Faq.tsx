@@ -11,12 +11,40 @@ const QA: { q: string; a: ReactNode }[] = [
     a: "No, that's the point. BudsBridge is for buds that hold one connection at a time. They stay connected to the laptop, and the phone plays through the laptop into them.",
   },
   {
+    q: "Does it work on Mac?",
+    a: (
+      <>
+        Yes, from v0.4.0, on macOS 12 Monterey or later, as one app for Apple Silicon and Intel. It lives in the menu bar and
+        opens the same dock as on Windows: your paired buds, connect and disconnect with one click or <b>⌃⌥B</b>, reconnect
+        after drops, and Open at login. The Bluetooth phone bridge is Windows only, because macOS can't act as a Bluetooth
+        speaker for a phone. The Mac version is new and hasn't been tested with real buds on a real Mac yet, so{" "}
+        <a className="text-link" href={`${REPO_URL}/issues`} target="_blank" rel="noreferrer">
+          reports are welcome
+        </a>
+        .
+      </>
+    ),
+  },
+  {
     q: "Which phones work?",
-    a: "Any phone that can play to a Bluetooth speaker. It has been tested with two Android phones at once (OPPO A83 and Pixel 7). iPhone should work the same way, since it's plain Bluetooth audio, but it hasn't been tested yet.",
+    a: "On Windows, any phone that can play to a Bluetooth speaker. It has been tested with two Android phones at once (OPPO A83 and Pixel 7). iPhone should work the same way, since it's plain Bluetooth audio, but it hasn't been tested yet. On a Mac, an iPhone or iPad plays through AirPlay instead.",
+  },
+  {
+    q: "Can my iPhone play through my Mac?",
+    a: (
+      <>
+        Yes, with AirPlay (macOS 12 or later). Turn on AirPlay Receiver in System Settings → General → AirDrop &amp; Handoff,
+        then AirPlay from the iPhone or iPad to your Mac. It plays in your buds, mixed with the Mac's own sound.
+      </>
+    ),
+  },
+  {
+    q: "Can my Android phone play through my Mac?",
+    a: "Not yet. macOS doesn't let a Mac receive phone audio over Bluetooth, so the phone bridge only works on Windows. A USB or Wi-Fi option for Android is planned.",
   },
   {
     q: "Do I need an app on my phone?",
-    a: "No. The phone just sees the laptop as a Bluetooth speaker. Pair the phone with the laptop once in Bluetooth & devices.",
+    a: "No. On Windows the phone just sees the laptop as a Bluetooth speaker: pair it with the laptop once in Bluetooth & devices. On a Mac, AirPlay is already built into the iPhone.",
   },
   {
     q: "Windows says “Windows protected your PC”. Is it safe?",
@@ -33,12 +61,23 @@ const QA: { q: string; a: ReactNode }[] = [
     a: "That's Smart App Control. It blocks unsigned apps outright and offers no way past it. Once the signed builds ship, it will open normally. Until then you can build it yourself from the source.",
   },
   {
+    q: "macOS says it can't verify BudsBridge.",
+    a: (
+      <>
+        The Mac app isn't notarized by Apple yet (that needs a paid Apple Developer ID), so macOS warns the first time. On
+        macOS 15 or later, click <b>Done</b>, open System Settings → Privacy &amp; Security, scroll down and click{" "}
+        <b>Open Anyway</b> next to BudsBridge. On macOS 12 to 14, Control-click BudsBridge in Applications, then choose{" "}
+        <b>Open</b> twice. After that, click <b>Allow</b> when it asks for Bluetooth.
+      </>
+    ),
+  },
+  {
     q: "Is there any delay on the phone's sound?",
     a: "Some delay is likely, because the phone's sound makes two Bluetooth hops: phone to laptop, then laptop to buds. It hasn't been measured yet; the hardware checklist on GitHub tracks it.",
   },
   {
-    q: "Does it work on Windows 10, macOS or Linux?",
-    a: "Windows 11 only for now. The demo mode runs anywhere for development, but talking to real Bluetooth devices needs Windows 11.",
+    q: "Does it work on Windows 10 or Linux?",
+    a: "No. It runs on Windows 11 and on macOS 12 or later. The demo mode runs anywhere for development, but talking to real Bluetooth devices needs one of those two.",
   },
   {
     q: "Is it really free?",

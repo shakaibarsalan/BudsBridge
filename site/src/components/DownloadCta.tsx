@@ -2,8 +2,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { bytes } from "../lib/format";
 import { DOWNLOAD_PAGE } from "../lib/links";
+import { useOs } from "../lib/platform";
 import { useLatestRelease, version, type Asset } from "../lib/release";
-import { IconArrow, IconCheck, IconWindows } from "./Icons";
+import { IconApple, IconArrow, IconCheck, IconWindows } from "./Icons";
 
 const EVENT = "bb:download";
 
@@ -13,29 +14,32 @@ export function announceDownload(asset: Asset) {
 }
 
 /**
- * The main download button. It links straight to the newest installer on GitHub, so
- * the file is always the latest build; the download page has the other files.
+ * The main download button. It links straight to the newest file on GitHub, so it is
+ * always the latest build: the Mac app for Mac visitors when the release has one, the
+ * Windows installer for everyone else. The download page has the other files.
  */
 export function DownloadButton({ size = "lg" }: { size?: "lg" | "md" }) {
-  const { release, installer } = useLatestRelease();
+  const { release, installer, mac } = useLatestRelease();
+  const forMac = useOs() === "mac" && !!mac;
+  const asset = forMac ? mac : installer;
   return (
     <a
-      href={installer?.url ?? DOWNLOAD_PAGE}
+      href={asset?.url ?? DOWNLOAD_PAGE}
       className={`btn btn--primary ${size === "lg" ? "btn--lg" : ""}`}
-      onClick={() => installer && announceDownload(installer)}
+      onClick={() => asset && announceDownload(asset)}
     >
-      <IconWindows />
-      Download for Windows
-      {installer && (
+      {forMac ? <IconApple /> : <IconWindows />}
+      Download for {forMac ? "Mac" : "Windows"}
+      {asset && (
         <span className="btn__meta">
-          v{version(release.tag)} · {bytes(installer.size)}
+          v{version(release.tag)} · {bytes(asset.size)}
         </span>
       )}
     </a>
   );
 }
 
-/** "Download started" with the one thing people trip on: the SmartScreen warning. */
+/** "Download started" with the one thing people trip on: SmartScreen on Windows, the first open on a Mac. */
 export function DownloadToast({ stepsHref = `${DOWNLOAD_PAGE}#first-run` }: { stepsHref?: string }) {
   const [file, setFile] = useState<string | null>(null);
   useEffect(() => {
@@ -65,10 +69,17 @@ export function DownloadToast({ stepsHref = `${DOWNLOAD_PAGE}#first-run` }: { st
           </span>
           <div className="toast__text">
             <strong>Downloading {file}</strong>
-            <span>
-              Windows may say <em>“Windows protected your PC”</em> the first time. Click <b>More info</b>, then{" "}
-              <b>Run anyway</b>.
-            </span>
+            {/\.dmg$/i.test(file) ? (
+              <span>
+                macOS says it can't verify BudsBridge the first time. On macOS 15 or later, click <b>Done</b>, then{" "}
+                <b>Open Anyway</b> in System Settings → Privacy &amp; Security.
+              </span>
+            ) : (
+              <span>
+                Windows may say <em>“Windows protected your PC”</em> the first time. Click <b>More info</b>, then{" "}
+                <b>Run anyway</b>.
+              </span>
+            )}
             <a href={stepsHref}>
               First-run steps <IconArrow />
             </a>
