@@ -125,6 +125,7 @@ BudsBridge/
 ├── crates/
 │   ├── budsbridge-core/         # models, state machine, policies (tested on any OS)
 │   ├── budsbridge-win/          # Windows backend (windows-rs)
+│   ├── budsbridge-mac/          # macOS backend (IOBluetooth through a small Objective-C file)
 │   └── budsbridge-bridge/       # Phase 2 audio sources
 ├── android/                     # optional companion app (Phase 2c / 3)
 ├── docs/
@@ -153,6 +154,24 @@ Each milestone is a series of small, conventional commits (`feat:`, `fix:`,
 | **P2b** Bridge: scrcpy | Bundled scrcpy/adb sidecar, audio-only, USB + Wi-Fi ADB | Spike S4 passes | ⏳ |
 | **P2c** Bridge UI | Sources panel, per-source volume, latency indicator | — | ⏳ |
 | **P3** Smart rules | Priority/ducking in hub mode, best-effort hand-over, optional companion app | Rules unit-tested; manual test | ⏳ |
+| **MAC** Mac version | `budsbridge-mac`: IOBluetooth paired devices, link open/close, polling; menu bar app, ⌃⌥B, open at login; phone audio explained as AirPlay | Universal app builds, signs and starts in CI; [Mac checklist](HARDWARE_TESTING.md#5-on-a-mac) passes | 🧪 built in 0.4.0, awaiting real buds on a real Mac |
+
+### The Mac backend
+
+macOS has public APIs for what the Windows backend does through kernel streaming:
+`IOBluetoothDevice.pairedDevices` lists the paired devices with their class of device and the
+services found when they were paired, `openConnection` brings a device's link up (macOS then
+connects the audio profiles and moves the sound to the buds), and `closeConnection` releases it.
+These calls live in `crates/budsbridge-mac/src/bluetooth.m`; deciding which devices are buds and
+what an error means is Rust in `classify.rs`, tested on every OS. Opening a link blocks for a few
+seconds, so it runs on its own thread, and a 1.5 s poll of the paired list replaces Windows'
+change notifications. The app needs `NSBluetoothAlwaysUsageDescription`, and asks for access once
+through CoreBluetooth.
+
+Bridge mode has no Mac counterpart: macOS never acts as an A2DP sink, so a phone can't stream to
+a Mac over Bluetooth. iPhones can use AirPlay to the Mac (macOS 12+), which plays through the
+current output, the buds; the app reads whether AirPlay Receiver is on and opens the setting.
+Android → Mac would need the P2b scrcpy route.
 
 ---
 

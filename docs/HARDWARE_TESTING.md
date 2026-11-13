@@ -87,3 +87,54 @@ Bluetooth services Windows set up for each paired phone.
 | B4: rough delay | |
 | B1–B8 failures (number + what happened) | |
 | Diagnostics text, if a phone didn't work | |
+
+## 5. On a Mac
+
+CI builds the Mac app, checks its signature and starts it on GitHub's Mac machines, which have no
+Bluetooth. These steps check it with real buds. Use macOS 12 or later.
+
+**Setup**
+
+- Pair the buds in **System Settings → Bluetooth** (once).
+- Download `BudsBridge-<version>-macos-universal.dmg` from
+  [Releases](https://github.com/shakaibarsalan/BudsBridge/releases), drag BudsBridge into
+  Applications and open it. The first time macOS says it can't verify it: on macOS 15+ go to
+  **System Settings → Privacy & Security → Open Anyway**; on 12–14 Control-click the app → **Open**.
+- Allow Bluetooth when macOS asks.
+- Logs: `~/Library/Logs/io.github.shakaibarsalan.budsbridge`
+
+**Backend on its own** (needs the source, Rust and the Xcode Command Line Tools; run it from
+Terminal, which macOS asks about Bluetooth once):
+
+```bash
+cargo run -p budsbridge-mac --example bt-audio -- list
+cargo run -p budsbridge-mac --example bt-audio -- disconnect <address from list>
+cargo run -p budsbridge-mac --example bt-audio -- connect <address>
+cargo run -p budsbridge-mac --example bt-audio -- diagnostics
+```
+
+| # | Step | Expected |
+|---|------|----------|
+| M1 | `list` | Your buds appear once, with their profiles, connected or not; phones and keyboards don't |
+| M2 | `disconnect` while connected | `done after X s`; macOS moves the sound back to the Mac's speakers |
+| M3 | `connect` while disconnected and out of the case | `done after X s`; the sound moves to the buds by itself |
+| M4 | Open the app | A buds icon in the menu bar, no Dock icon; clicking it opens the dock under it |
+| M5 | Buds tile, power button, Devices list, menu bar right-click | Each connects and releases the buds; the states move through *Connecting…* |
+| M6 | `⌃⌥B` from another app | Toggles the buds |
+| M7 | Close the case while connected | Auto-reconnect retries; opening the case brings them back |
+| M8 | Buds connected to your phone, then connect from the Mac | Times out (buds ignore the Mac) **or** they jump to the Mac; note which |
+| M9 | Turn Bluetooth off, then click Connect | A clear "Bluetooth is off" message |
+| M10 | **Open at login** on, log out and in | BudsBridge starts in the menu bar without opening the dock |
+| M11 | Phones in the dock | The AirPlay steps; paired phones listed as *Can't play through a Mac over Bluetooth* |
+| M12 | AirPlay from an iPhone to the Mac | The iPhone plays in the buds with the Mac's sound |
+| M13 | Open the app again from Applications while it runs | The dock opens; no second copy |
+
+| Item | Value |
+|------|-------|
+| Mac model, chip (Apple Silicon / Intel) | |
+| macOS version | |
+| Buds model | |
+| M2 / M3 times | |
+| M8 behaviour (ignore / takeover) | |
+| M1–M13 failures (number + what happened) | |
+| Diagnostics text, if something didn't work | |

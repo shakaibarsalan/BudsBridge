@@ -6,13 +6,14 @@
 
 **Hear your phone and your laptop in the same Bluetooth buds, even buds without multipoint.**
 
-A small dock for Windows 11 that opens from the tray. The buds stay connected to the laptop, and your phone plays its audio through the laptop into the same buds, so you hear both and never switch. When you do want the buds back on the phone, one click or a hotkey hands them over. Everything runs on your machine. A single `.exe`, no account, nothing to install on your phone.
+A small dock for Windows 11 that opens from the tray, and now for macOS from the menu bar. The buds stay connected to the laptop, and your phone plays its audio through the laptop into the same buds, so you hear both and never switch. When you do want the buds back on the phone, one click or a hotkey hands them over. Everything runs on your machine. No account, nothing to install on your phone.
 
-[![Download](https://img.shields.io/badge/%E2%86%93%20Download-Windows%2011-0067c0?style=for-the-badge)](https://github.com/shakaibarsalan/BudsBridge/releases/latest)
+[![Download for Windows](https://img.shields.io/badge/%E2%86%93%20Download-Windows%2011-0067c0?style=for-the-badge)](https://github.com/shakaibarsalan/BudsBridge/releases/latest)
+[![Download for Mac](https://img.shields.io/badge/%E2%86%93%20Download-macOS%2012%2B-1f1e1d?style=for-the-badge)](https://github.com/shakaibarsalan/BudsBridge/releases/latest)
 [![Feasibility study](https://img.shields.io/badge/Read-feasibility%20study-1f1e1d?style=for-the-badge)](docs/FEASIBILITY.md)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-0067c0.svg)](LICENSE)
-![Platform: Windows 11](https://img.shields.io/badge/platform-Windows%2011-1f1e1d)
+![Platform: Windows 11 and macOS 12+](https://img.shields.io/badge/platform-Windows%2011%20%7C%20macOS%2012%2B-1f1e1d)
 ![Built with Tauri 2 and Rust](https://img.shields.io/badge/built%20with-Tauri%202%20%2B%20Rust-1f1e1d)
 ![Status: preview](https://img.shields.io/badge/status-preview-b26b00)
 
@@ -54,8 +55,9 @@ Phone ──Bluetooth──► Laptop ──Bluetooth──► Buds
 | **Hotkey** | `Ctrl+Alt+B` toggles your chosen buds from any app. Pick them with **Hotkey target**, change the key combination in Settings, or leave the field empty to turn it off |
 | **Auto-reconnect** | if the buds drop unexpectedly, out of range or the case closed, BudsBridge retries after 1 s, 2 s, 4 s … up to 30 s, eight times. It never retries after *you* disconnect, so the laptop doesn't fight your phone for the buds |
 | **Tray icon** | a filled icon while buds are connected and an outline when not, and a tooltip naming what's connected. Left-click opens the dock; right-click has a menu to toggle each device and phone, switch auto-reconnect, open settings or quit |
-| **Start with Windows** | starts minimized to the tray, ready for the hotkey |
+| **Start with Windows** | starts minimized to the tray, ready for the hotkey (**Open at login** on a Mac) |
 | **Windows 11 look** | Mica backdrop, and light and dark mode follow your system setting |
+| **On a Mac too** | the same dock from the menu bar, with buds switching, `⌃⌥B`, auto-reconnect and open at login. Phone audio comes from an iPhone over AirPlay, because macOS can't receive a phone's Bluetooth audio ([details](#on-a-mac)) |
 
 ## How to use it
 
@@ -68,15 +70,27 @@ Phone ──Bluetooth──► Laptop ──Bluetooth──► Buds
 
 <p align="center"><img src="docs/media/light-dark.png" width="600" alt="The dock in light and dark theme"><br><sub>Light and dark follow the system theme. On Windows 11 the dock and the window also get the Mica backdrop, which this Linux recording can't show.</sub></p>
 
+## On a Mac
+
+From 0.4.0 BudsBridge also runs on macOS 12 Monterey or later, one app for Apple Silicon and Intel. It lives in the menu bar (no Dock icon) and opens the same dock:
+
+- **Buds:** every paired Bluetooth headset, earbud and speaker, connected or released with one click, the tiles, the menu or **⌃⌥B** (Control+Option+B) from any app, with the same auto-reconnect rules as on Windows.
+- **Open at login**, and light and dark follow the system.
+- **Phone audio is different.** macOS can't act as a Bluetooth speaker for a phone: Apple's Bluetooth stack offers apps no audio sink, so the Windows bridge can't exist on a Mac. An **iPhone or iPad** gets the same result with **AirPlay**: play something, tap AirPlay and choose the Mac, and it plays in your buds along with the Mac's own sound (AirPlay Receiver is in **System Settings → General → AirDrop & Handoff**; the dock opens it for you when it is off). **Android phones** can't play through a Mac yet; the planned USB/Wi-Fi option would cover them.
+- **New, and not yet tried on real hardware.** Every change builds the Mac app, checks its signature and starts it on GitHub's Mac machines, but it hasn't been used with real buds on a real Mac yet. Reports are welcome.
+
+Under the hood the Mac backend asks IOBluetooth for the paired devices and opens or closes the buds' link; macOS then brings the audio up and moves the sound to them itself ([`budsbridge-mac`](crates/budsbridge-mac)).
+
 ## Install
 
 From the [latest release](https://github.com/shakaibarsalan/BudsBridge/releases/latest):
 
 | File | What it is |
 |---|---|
-| `BudsBridge.exe` | a single file, no installer: download it and open it |
-| `BudsBridge-<version>-windows-x64-setup.exe` | installer for your user only: Start menu entry and uninstaller, no admin prompt |
-| `SHA256SUMS.txt` | checksums for both |
+| `BudsBridge.exe` | Windows: a single file, no installer: download it and open it |
+| `BudsBridge-<version>-windows-x64-setup.exe` | Windows: installer for your user only: Start menu entry and uninstaller, no admin prompt |
+| `BudsBridge-<version>-macos-universal.dmg` | Mac (0.4.0 and later): open it and drag BudsBridge into Applications |
+| `SHA256SUMS.txt` | checksums for all of them |
 
 Opening a newer `BudsBridge.exe` while an older copy runs in the tray hands over to the new one (from 0.3.1 on; quit older copies from the tray first).
 
@@ -84,16 +98,19 @@ Opening a newer `BudsBridge.exe` while an older copy runs in the tray hands over
 
 The build isn't code-signed yet, so the first time Windows shows *"Windows protected your PC"*: click **More info → Run anyway**. On a PC with **Smart App Control** turned on, Windows blocks unsigned apps outright and offers no way past it; that needs a code-signing certificate, which is [on the roadmap](#roadmap).
 
+**On a Mac** the app isn't notarized by Apple yet (that needs a paid Apple Developer ID), so the first time macOS says it can't verify it. On macOS 15 and later: click **Done**, open **System Settings → Privacy & Security**, scroll down and click **Open Anyway** next to BudsBridge. On macOS 12–14: Control-click BudsBridge in Applications and choose **Open**. Then allow Bluetooth when macOS asks; BudsBridge needs it to see and connect your buds.
+
 ### Or build it yourself
 
-Windows 11 with Rust (stable, MSVC), Node.js 22+ and pnpm 10:
+Windows 11 with Rust (stable, MSVC), or macOS with Rust and the Xcode Command Line Tools, plus Node.js 22+ and pnpm 10:
 
 ```bash
 git clone https://github.com/shakaibarsalan/BudsBridge.git
 cd BudsBridge/apps/desktop
 pnpm install
 pnpm tauri dev      # run it
-pnpm tauri build    # target/release/budsbridge.exe and an NSIS installer
+pnpm tauri build    # Windows: target/release/budsbridge.exe and an NSIS installer
+                    # Mac: target/release/bundle/macos/BudsBridge.app and a .dmg
 ```
 
 <details>
@@ -103,9 +120,10 @@ pnpm tauri build    # target/release/budsbridge.exe and an NSIS installer
 $env:BUDSBRIDGE_DEMO = "1"; pnpm tauri dev                          # simulated devices, works on any OS
 cargo run -p budsbridge-win --example bt-audio -- list              # real devices, Windows only
 cargo run -p budsbridge-win --example bt-audio -- connect "{id-from-list}"
+cargo run -p budsbridge-mac --example bt-audio -- list              # real devices, macOS only
 ```
 
-Settings live in `%APPDATA%\io.github.shakaibarsalan.budsbridge\settings.json`, and logs in `%LOCALAPPDATA%\io.github.shakaibarsalan.budsbridge\logs`.
+Settings live in `%APPDATA%\io.github.shakaibarsalan.budsbridge\settings.json`, and logs in `%LOCALAPPDATA%\io.github.shakaibarsalan.budsbridge\logs`. On a Mac: `~/Library/Application Support/io.github.shakaibarsalan.budsbridge/settings.json` and `~/Library/Logs/io.github.shakaibarsalan.budsbridge`.
 </details>
 
 ## How it works
@@ -139,6 +157,7 @@ stateDiagram-v2
 |---|---|
 | [`budsbridge-core`](crates/budsbridge-core) | device model, connection state machine, reconnect back-off, settings, and the runtime worker that drives a backend. No OS code |
 | [`budsbridge-win`](crates/budsbridge-win) | Windows backend: Bluetooth endpoints grouped by device container, KS connect/disconnect, change notifications, plus the `bt-audio` CLI |
+| [`budsbridge-mac`](crates/budsbridge-mac) | macOS backend: IOBluetooth's paired devices sorted into buds and phones by class of device and services, link open and close, polling for changes, plus its own `bt-audio` CLI |
 | [`apps/desktop`](apps/desktop) | Tauri 2 app: window, tray, global hotkey, start with Windows, React UI |
 
 The reasoning behind every choice, including what is impossible, is in [docs/FEASIBILITY.md](docs/FEASIBILITY.md) and [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
@@ -151,7 +170,9 @@ The reasoning behind every choice, including what is impossible, is in [docs/FEA
 | Bridge mode: phone audio through the laptop over Bluetooth | built and working on the first real test (Windows 11 laptop, TWS buds), with two phones at once (OPPO A83 and Pixel 7); delay and stutter not measured yet |
 | Tray dock and settings window in the InverterBar style | built |
 | Code signing, so Smart App Control and SmartScreen trust the download | release workflow ready; application to SignPath Foundation under review |
-| Phone audio over USB or Wi-Fi ADB (bundled scrcpy, audio only) | planned |
+| Mac version: menu bar dock, buds switching, hotkey, auto-reconnect, open at login | built in 0.4.0; tested on GitHub's Mac machines, real buds on a real Mac still to check |
+| Notarized Mac app, so macOS opens it without the Privacy & Security step | needs an Apple Developer ID |
+| Phone audio over USB or Wi-Fi ADB (bundled scrcpy, audio only), which would also bring Android phones to a Mac | planned |
 | Audio sources panel with per-source volume and a latency indicator | planned |
 | Priority and ducking between laptop and phone audio | planned |
 
@@ -166,6 +187,8 @@ The reasoning behind every choice, including what is impossible, is in [docs/FEA
 - **Busy buds may ignore the laptop.** While the buds are connected to the phone, many models ignore the laptop until the phone lets go, and others jump to the laptop. Which one yours do is item S2 of the [hardware checklist](docs/HARDWARE_TESTING.md).
 - **It depends on the Bluetooth driver.** Connecting needs a driver that implements `KSPROPSETID_BtAudio`. The Microsoft in-box stack is expected to, but some vendor stacks may not. BudsBridge shows that as an error instead of failing silently.
 - **Mic use lowers quality.** When any app uses the buds' mic, Classic Bluetooth switches to the hands-free profile and all sound becomes mono and low fidelity. LE Audio on Windows 11 24H2 avoids this, but only when the radio, driver and buds all support it.
+- **On a Mac there is no Bluetooth phone audio.** macOS doesn't let apps receive a phone's Bluetooth audio, so bridge mode is Windows only; an iPhone can use AirPlay to the Mac instead, and Android phones have no way in yet.
+- **The Mac version hasn't met real buds yet.** It is built, signed and started on GitHub's Mac machines for every change; connecting and releasing real buds on a real Mac is still to be checked.
 - **Fully automatic switching back to the phone isn't possible from a normal Android app**, because Android has no public API to connect a specific headset ([details](docs/FEASIBILITY.md#7-phase-3-auto-switch-what-is-really-possible)).
 
 ## FAQ
@@ -178,6 +201,9 @@ No. The phone only needs Bluetooth and to be paired with the laptop once; the la
 
 **What about phone calls?**
 Microsoft's Phone Link (built into Windows 11) can take your phone's calls on the laptop, and the laptop plays them in the buds and uses their mic. Call audio uses Bluetooth's hands-free mode, which sounds lower quality than music.
+
+**Does it work on a Mac?**
+Yes, from 0.4.0, on macOS 12 or later: the menu bar dock, buds switching, the hotkey (`⌃⌥B`), auto-reconnect and open at login. Phone audio over Bluetooth doesn't exist on macOS, so an iPhone plays through the Mac with AirPlay instead ([details](#on-a-mac)).
 
 **My buds support multipoint. Do I need this?**
 Probably not: multipoint buds already stay connected to both. BudsBridge is for the many that don't.
@@ -193,7 +219,7 @@ The `.exe` isn't code-signed yet. Without a signature, SmartScreen warns once (*
 
 ## How it's built
 
-Rust and [Tauri 2](https://tauri.app), with a React 19 + TypeScript UI. Windows APIs (Core Audio, kernel streaming, COM) come through Microsoft's [`windows`](https://github.com/microsoft/windows-rs) crate. Bridge mode uses Windows' own `AudioPlaybackConnection`, which turns the laptop into a Bluetooth speaker for a paired phone. The dock's look follows the menu bar panel of [InverterBar](https://github.com/ahkamboh/inverterbar): monochrome surfaces, restrained accents for what is live, and a hero picture that is a pure function of the current state. The logic is OS-independent and tested with in-memory backends: 59 Rust tests for the switching and bridge state machines, reconnect policies, settings and runtimes, more for endpoint naming, phone matching, dock placement on any taskbar edge, the tray labels and the diagnostics report, and 47 Vitest tests for the dock and the settings window. CI runs rustfmt, clippy (warnings are errors) and all tests on Linux and Windows, builds the installer, and a tag publishes a release.
+Rust and [Tauri 2](https://tauri.app), with a React 19 + TypeScript UI. Windows APIs (Core Audio, kernel streaming, COM) come through Microsoft's [`windows`](https://github.com/microsoft/windows-rs) crate; on macOS a small Objective-C file calls IOBluetooth and CoreBluetooth. Bridge mode uses Windows' own `AudioPlaybackConnection`, which turns the laptop into a Bluetooth speaker for a paired phone. The dock's look follows the menu bar panel of [InverterBar](https://github.com/ahkamboh/inverterbar): monochrome surfaces, restrained accents for what is live, and a hero picture that is a pure function of the current state. The logic is OS-independent and tested with in-memory backends: 59 Rust tests for the switching and bridge state machines, reconnect policies, settings and runtimes, more for endpoint naming, phone matching, dock placement on any taskbar edge, the tray labels and the diagnostics report, and 55 Vitest tests for the dock, the settings window and the Mac wording. CI runs rustfmt, clippy (warnings are errors) and all tests on Linux, Windows and macOS, builds the Windows installer and the universal Mac app with a smoke test that starts it, and a tag publishes a release with both.
 
 The demo and screenshots above are recorded by [`scripts/record-demo.sh`](scripts/record-demo.sh). It starts the app in demo mode on a virtual display, clicks through the flow with `xdotool`, and captures it with `ffmpeg`, so every run of the script produces the same media.
 
@@ -203,7 +229,8 @@ The video is drawn rather than screen-recorded, like [InverterBar](https://githu
 BudsBridge/
 ├── crates/
 │   ├── budsbridge-core/     device model, state machine, reconnect policy, settings, runtime
-│   └── budsbridge-win/      Windows backend (Core Audio + KS), examples/bt-audio.rs CLI
+│   ├── budsbridge-win/      Windows backend (Core Audio + KS), examples/bt-audio.rs CLI
+│   └── budsbridge-mac/      macOS backend (IOBluetooth), examples/bt-audio.rs CLI
 ├── apps/desktop/
 │   ├── src/                 React UI and its tests
 │   └── src-tauri/           Tauri shell: window, tray, hotkey, autostart, commands
@@ -225,7 +252,7 @@ Free code signing provided by [SignPath.io](https://about.signpath.io), certific
 
 Every release is built from this repository by the [release workflow](.github/workflows/release.yml) on GitHub-hosted runners, and nothing is signed until an approver confirms the request in SignPath. Changes from people outside the team come in as pull requests and are reviewed before they are merged. How it is set up: [`.signpath/`](.signpath/README.md).
 
-**Privacy policy:** This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it. BudsBridge has no network code: its window is drawn by Windows' WebView2 runtime from files inside the app, and everything else talks only to Windows on the same machine. WebView2 is part of Windows and covered by [Microsoft's privacy statement](https://privacy.microsoft.com/privacystatement).
+**Privacy policy:** This program will not transfer any information to other networked systems unless specifically requested by the user or the person installing or operating it. BudsBridge has no network code: its window is drawn by Windows' WebView2 runtime (on a Mac, by macOS' own WebKit) from files inside the app, and everything else talks only to the operating system on the same machine. WebView2 is part of Windows and covered by [Microsoft's privacy statement](https://privacy.microsoft.com/privacystatement).
 
 ## Author
 

@@ -1,10 +1,12 @@
 name: Release
 
-# Publishes a GitHub Release with the portable exe, the installer and checksums.
+# Publishes a GitHub Release with the Windows files (portable exe and
+# installer), the Mac disk image and checksums for all of them.
 # Start it either way:
 #   - push a tag like v0.1.0 (it must match the version in tauri.conf.json), or
 #   - Actions -> Release -> Run workflow on main with the version tag; the release
-#     step creates the tag on that commit.
+#     step creates the tag on that commit. Tick "dry run" to build and check
+#     everything and keep the files as a workflow artifact, without publishing.
 # Release notes come from docs/releases/<tag>.md.
 #
 # Code signing (SignPath Foundation, see .signpath/README.md) turns on once the
@@ -12,6 +14,9 @@ name: Release
 # are set. The app is signed first, so the installer is built around the signed
 # copy, then the installer is signed. Each request waits for an approver in
 # SignPath. Without the variable, releases are published unsigned.
+#
+# The Mac app is ad-hoc signed and not notarized: notarizing needs an Apple
+# Developer ID, which the project doesn't have yet.
 on:
   push:
     tags: ["v*"]
@@ -20,6 +25,10 @@ on:
       tag:
         description: Version tag to publish, e.g. v0.1.0 (created if it doesn't exist)
         required: true
+      dry_run:
+        description: Dry run (build and check, keep the files as an artifact, publish nothing)
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -30,15 +39,37 @@ defaults:
   run:
     shell: bash
 
+env:
+  TAG: ${{ github.event.inputs.tag || github.ref_name }}
+
 jobs:
-  windows:
-    name: Build and publish (Windows)
-    runs-on: windows-latest
-    env:
-      TAG: ${{ github.event.inputs.tag || github.ref_name }}
-      SIGN: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
+  check:
+    name: Check the version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
     steps:
       # A tag push builds the tag; a manual run builds the commit it was started on.
+      - uses: actions/checkout@v4
+      - name: Check the tag matches the app version
+        id: version
+        run: |
+          version=$(node -p "require('./apps/desktop/src-tauri/tauri.conf.json').version")
+          if [ "v$version" != "$TAG" ]; then
+            echo "tauri.conf.json is v$version but the tag is $TAG" >&2
+            exit 1
+          fi
+          test -f "docs/releases/$TAG.md" || { echo "missing docs/releases/$TAG.md" >&2; exit 1; }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+  windows:
+    name: Build (Windows)
+    needs: check
+    runs-on: windows-latest
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+      SIGN: ${{ vars.SIGNPATH_ORGANIZATION_ID != '' }}
+    steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
@@ -50,15 +81,6 @@ jobs:
           node-version: 22
           cache: pnpm
           cache-dependency-path: apps/desktop/pnpm-lock.yaml
-      - name: Check the tag matches the app version
-        run: |
-          version=$(node -p "require('./apps/desktop/src-tauri/tauri.conf.json').version")
-          if [ "v$version" != "$TAG" ]; then
-            echo "tauri.conf.json is v$version but the tag is $TAG" >&2
-            exit 1
-          fi
-          test -f "docs/releases/$TAG.md" || { echo "missing docs/releases/$TAG.md" >&2; exit 1; }
-          echo "VERSION=$version" >> "$GITHUB_ENV"
 
       - name: Build the app
         working-directory: apps/desktop
@@ -130,15 +152,94 @@ jobs:
         if: env.SIGN == 'true'
         run: cp signed/installer/*-setup.exe release/
 
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-windows
+          path: release/
+          if-no-files-found: error
+
+  macos:
+    name: Build (macOS)
+    needs: check
+    runs-on: macos-latest
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-apple-darwin,x86_64-apple-darwin
+      - uses: Swatinem/rust-cache@v2
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: apps/desktop/package.json
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: apps/desktop/pnpm-lock.yaml
+
+      # One app for Apple Silicon and Intel, ad-hoc signed, in a disk image.
+      - name: Build the app and the disk image
+        working-directory: apps/desktop
+        run: pnpm install --frozen-lockfile && pnpm tauri build --ci --target universal-apple-darwin
+      - name: Smoke test the app
+        run: bash scripts/macos-smoke.sh target/universal-apple-darwin/release/bundle
+      - name: Collect release files
+        run: |
+          mkdir -p release
+          cp target/universal-apple-darwin/release/bundle/dmg/*.dmg "release/BudsBridge-${VERSION}-macos-universal.dmg"
+          ls -l release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-macos
+          path: release/
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: macos-smoke-test
+          path: smoke/
+          if-no-files-found: ignore
+
+  publish:
+    name: Publish
+    needs: [check, windows, macos]
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ needs.check.outputs.version }}
+      DRY_RUN: ${{ github.event.inputs.dry_run == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: release-*
+          path: release
+          merge-multiple: true
       - name: Checksums and release notes
         run: |
-          (cd release && sha256sum BudsBridge*.exe > SHA256SUMS.txt && cat SHA256SUMS.txt)
+          for file in BudsBridge.exe "BudsBridge-${VERSION}-windows-x64-setup.exe" "BudsBridge-${VERSION}-macos-universal.dmg"; do
+            test -f "release/$file" || { echo "missing release/$file" >&2; exit 1; }
+          done
+          (cd release && sha256sum BudsBridge* > SHA256SUMS.txt && cat SHA256SUMS.txt)
           ls -l release
           {
             cat "docs/releases/$TAG.md"
             printf '\n---\n\n[Code signing policy](https://github.com/%s#code-signing-policy)\n' "$GITHUB_REPOSITORY"
           } > release-notes.md
+
+      - name: Keep the files (dry run)
+        if: env.DRY_RUN == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-dry-run
+          path: |
+            release/
+            release-notes.md
+          if-no-files-found: error
       - uses: softprops/action-gh-release@v2
+        if: env.DRY_RUN != 'true'
         with:
           tag_name: ${{ env.TAG }}
           target_commitish: ${{ github.sha }}

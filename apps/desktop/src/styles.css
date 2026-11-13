@@ -830,6 +830,26 @@ button {
   line-height: 1.4;
 }
 
+/* macOS: how an iPhone plays through the Mac (AirPlay). */
+.airplay {
+  display: grid;
+  gap: 6px;
+  margin: 2px 2px 8px;
+  line-height: 1.4;
+}
+
+.airplay strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.airplay__off {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
 .row--unavailable .row__name,
 .device--unavailable .device__name {
   color: var(--text-2);
